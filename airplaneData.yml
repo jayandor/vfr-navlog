@@ -1,0 +1,594 @@
+
+cessna172m:
+    label: "Cessna 172 M"
+    cruisePerformance:
+        # Pressure Altitude
+        2000:
+            # Temperature
+            below:
+                # RPM
+                2550:
+                    bhp: 80
+                    ktas: 114
+                    gph: 8.8
+
+                2500:
+                    bhp: 76
+                    ktas: 111
+                    gph: 8.3
+
+                2400:
+                    bhp: 68
+                    ktas: 107
+                    gph: 7.5
+
+                2300:
+                    bhp: 61
+                    ktas: 102
+                    gph: 6.9
+
+                2200:
+                    bhp: 55
+                    ktas: 96
+                    gph: 6.4
+
+            standard:
+                # RPM
+                2550:
+                    bhp: 75
+                    ktas: 113
+                    gph: 8.2
+
+                2500:
+                    bhp: 71
+                    ktas: 111
+                    gph: 7.8
+
+                2400:
+                    bhp: 64
+                    ktas: 107
+                    gph: 7.2
+
+                2300:
+                    bhp: 58
+                    ktas: 101
+                    gph: 6.7
+
+                2200:
+                    bhp: 52
+                    ktas: 95
+                    gph: 6.2
+
+            above:
+                # RPM
+                2550:
+                    bhp: 71
+                    ktas: 113
+                    gph: 7.8
+
+                2500:
+                    bhp: 67
+                    ktas: 111
+                    gph: 7.5
+
+                2400:
+                    bhp: 61
+                    ktas: 106
+                    gph: 6.9
+
+                2300:
+                    bhp: 55
+                    ktas: 99
+                    gph: 6.5
+
+                2200:
+                    bhp: 49
+                    ktas: 93
+                    gph: 6.1
+
+        4000:
+            # Temperature
+            below:
+                # RPM
+                2600:
+                    bhp: 80
+                    ktas: 116
+                    gph: 8.8
+
+                2500:
+                    bhp: 72
+                    ktas: 111
+                    gph: 7.9
+
+                2400:
+                    bhp: 65
+                    ktas: 107
+                    gph: 7.3
+
+                2300:
+                    bhp: 58
+                    ktas: 101
+                    gph: 6.7
+
+                2200:
+                    bhp: 52
+                    ktas: 95
+                    gph: 6.3
+
+            standard:
+                # RPM
+                2600:
+                    bhp: 75
+                    ktas: 116
+                    gph: 8.3
+
+                2500:
+                    bhp: 68
+                    ktas: 111
+                    gph: 7.5
+
+                2400:
+                    bhp: 61
+                    ktas: 106
+                    gph: 6.9
+
+                2300:
+                    bhp: 55
+                    ktas: 100
+                    gph: 6.5
+
+                2200:
+                    bhp: 49
+                    ktas: 93
+                    gph: 6.1
+
+            above:
+                # RPM
+                2600:
+                    bhp: 71
+                    ktas: 116
+                    gph: 7.8
+
+                2500:
+                    bhp: 64
+                    ktas: 110
+                    gph: 7.2
+
+                2400:
+                    bhp: 58
+                    ktas: 104
+                    gph: 6.7
+
+                2300:
+                    bhp: 53
+                    ktas: 98
+                    gph: 6.3
+
+                2200:
+                    bhp: 47
+                    ktas: 92
+                    gph: 5.9
+
+        6000:
+            # Temperature
+            below:
+                # RPM
+                2650:
+                    bhp: 80
+                    ktas: 118
+                    gph: 8.8
+
+                2600:
+                    bhp: 76
+                    ktas: 116
+                    gph: 8.3
+
+                2500:
+                    bhp: 69
+                    ktas: 111
+                    gph: 7.6
+
+                2400:
+                    bhp: 62
+                    ktas: 106
+                    gph: 7.0
+
+                2300:
+                    bhp: 56
+                    ktas: 100
+                    gph: 6.5
+
+                2200:
+                    bhp: 50
+                    ktas: 94
+                    gph: 6.1
+
+            standard:
+                # RPM
+                2650:
+                    bhp: 75
+                    ktas: 118
+                    gph: 8.2
+
+                2600:
+                    bhp: 71
+                    ktas: 116
+                    gph: 7.9
+
+                2500:
+                    bhp: 65
+                    ktas: 110
+                    gph: 7.2
+
+                2400:
+                    bhp: 59
+                    ktas: 104
+                    gph: 6.7
+
+                2300:
+                    bhp: 53
+                    ktas: 98
+                    gph: 6.3
+
+                2200:
+                    bhp: 47
+                    ktas: 92
+                    gph: 5.9
+
+            above:
+                # RPM
+                2650:
+                    bhp: 71
+                    ktas: 118
+                    gph: 7.8
+
+                2600:
+                    bhp: 68
+                    ktas: 115
+                    gph: 7.5
+
+                2500:
+                    bhp: 62
+                    ktas: 109
+                    gph: 7.0
+
+                2400:
+                    bhp: 56
+                    ktas: 103
+                    gph: 6.5
+
+                2300:
+                    bhp: 50
+                    ktas: 97
+                    gph: 6.1
+
+                2200:
+                    bhp: 45
+                    ktas: 91
+                    gph: 5.8
+
+        8000:
+            # Temperature
+            below:
+                # RPM
+                2700:
+                    bhp: 80
+                    ktas: 120
+                    gph: 8.8
+
+                2600:
+                    bhp: 72
+                    ktas: 116
+                    gph: 8.0
+
+                2500:
+                    bhp: 65
+                    ktas: 111
+                    gph: 7.3
+
+                2400:
+                    bhp: 59
+                    ktas: 105
+                    gph: 6.8
+
+                2300:
+                    bhp: 54
+                    ktas: 99
+                    gph: 6.4
+
+                2200:
+                    bhp: 48
+                    ktas: 93
+                    gph: 6.0
+
+            standard:
+                # RPM
+                2700:
+                    bhp: 75
+                    ktas: 120
+                    gph: 8.3
+
+                2600:
+                    bhp: 68
+                    ktas: 115
+                    gph: 7.5
+
+                2500:
+                    bhp: 62
+                    ktas: 109
+                    gph: 7.0
+
+                2400:
+                    bhp: 56
+                    ktas: 103
+                    gph: 6.6
+
+                2300:
+                    bhp: 51
+                    ktas: 97
+                    gph: 6.2
+
+                2200:
+                    bhp: 45
+                    ktas: 91
+                    gph: 5.8
+
+            above:
+                # RPM
+                2700:
+                    bhp: 71
+                    ktas: 120
+                    gph: 7.8
+
+                2600:
+                    bhp: 65
+                    ktas: 114
+                    gph: 7.3
+
+                2500:
+                    bhp: 59
+                    ktas: 108
+                    gph: 6.8
+
+                2400:
+                    bhp: 53
+                    ktas: 101
+                    gph: 6.3
+
+                2300:
+                    bhp: 48
+                    ktas: 96
+                    gph: 6.0
+
+                2200:
+                    bhp: 43
+                    ktas: 90
+                    gph: 5.7
+
+        10000:
+            # Temperature
+            below:
+                # RPM
+                2700:
+                    bhp: 76
+                    ktas: 120
+                    gph: 8.4
+
+                2600:
+                    bhp: 69
+                    ktas: 115
+                    gph: 7.6
+
+                2500:
+                    bhp: 63
+                    ktas: 110
+                    gph: 7.1
+
+                2400:
+                    bhp: 57
+                    ktas: 104
+                    gph: 6.6
+
+                2300:
+                    bhp: 51
+                    ktas: 97
+                    gph: 6.2
+
+                2200:
+                    bhp: 46
+                    ktas: 92
+                    gph: 5.8
+
+            standard:
+                # RPM
+                2700:
+                    bhp: 72
+                    ktas: 120
+                    gph: 7.9
+
+                2600:
+                    bhp: 65
+                    ktas: 114
+                    gph: 7.3
+
+                2500:
+                    bhp: 59
+                    ktas: 108
+                    gph: 6.8
+
+                2400:
+                    bhp: 54
+                    ktas: 102
+                    gph: 6.4
+
+                2300:
+                    bhp: 48
+                    ktas: 96
+                    gph: 6.0
+
+                2200:
+                    bhp: 43
+                    ktas: 90
+                    gph: 5.7
+
+            above:
+                # RPM
+                2700:
+                    bhp: 68
+                    ktas: 119
+                    gph: 7.6
+
+                2600:
+                    bhp: 62
+                    ktas: 112
+                    gph: 7.0
+
+                2500:
+                    bhp: 56
+                    ktas: 106
+                    gph: 6.6
+
+                2400:
+                    bhp: 51
+                    ktas: 100
+                    gph: 6.2
+
+                2300:
+                    bhp: 46
+                    ktas: 95
+                    gph: 5.8
+
+                2200:
+                    bhp: 41
+                    ktas: 89
+                    gph: 5.5
+
+        12000:
+            # Temperature
+            below:
+                # RPM
+                2650:
+                    bhp: 69
+                    ktas: 117
+                    gph: 7.6
+
+                2600:
+                    bhp: 66
+                    ktas: 114
+                    gph: 7.4
+
+                2500:
+                    bhp: 60
+                    ktas: 108
+                    gph: 6.8
+
+                2400:
+                    bhp: 54
+                    ktas: 102
+                    gph: 6.4
+
+                2300:
+                    bhp: 49
+                    ktas: 96
+                    gph: 6.0
+
+                2200:
+                    bhp: 44
+                    ktas: 91
+                    gph: 5.7
+
+            standard:
+                # RPM
+                2650:
+                    bhp: 65
+                    ktas: 116
+                    gph: 7.3
+
+                2600:
+                    bhp: 62
+                    ktas: 113
+                    gph: 7.0
+
+                2500:
+                    bhp: 57
+                    ktas: 106
+                    gph: 6.6
+
+                2400:
+                    bhp: 51
+                    ktas: 100
+                    gph: 6.2
+
+                2300:
+                    bhp: 46
+                    ktas: 95
+                    gph: 5.9
+
+                2200:
+                    bhp: 41
+                    ktas: 89
+                    gph: 5.5
+
+            above:
+                # RPM
+                2650:
+                    bhp: 62
+                    ktas: 114
+                    gph: 7.0
+
+                2600:
+                    bhp: 59
+                    ktas: 111
+                    gph: 6.8
+
+                2500:
+                    bhp: 54
+                    ktas: 105
+                    gph: 6.4
+
+                2400:
+                    bhp: 49
+                    ktas: 99
+                    gph: 6.0
+
+                2300:
+                    bhp: 43
+                    ktas: 94
+                    gph: 5.7
+
+                2200:
+                    bhp: 38
+                    ktas: 88
+                    gph: 5.3
+
+    airspeedCalibration:
+        # Flaps amount (deg)
+        0:
+            # KIAS: KCAS
+            40: 49
+            50: 55
+            60: 62
+            70: 70
+            80: 80
+            90: 89
+            100: 99
+            110: 108
+            120: 118
+            130: 128
+            140: 138
+        10:
+            # KIAS: KCAS
+            40: 49
+            50: 55
+            60: 62
+            70: 71
+            80: 80
+            85: 85
+        40:
+            # KIAS: KCAS
+            40: 47
+            50: 54
+            60: 62
+            70: 71
+            80: 81
+            85: 86
