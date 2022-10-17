@@ -1,0 +1,19 @@
+{
+  "name": "vfr-navlog",
+  "version": "1.0.0",
+  "description": "VFR Navlog Helper App",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack --mode development -w"
+  },
+  "author": "Jordan Williamson",
+  "license": "ISC",
+  "dependencies": {
+    "@faa-aviation-data-portal/winds-aloft": "^0.0.2",
+    "js-yaml": "^4.1.0",
+    "vue": "^3.2.41",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0"
+  }
+}
