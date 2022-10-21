@@ -1,6 +1,7 @@
 
 cessna172m:
     label: "Cessna 172 M"
+    dataSource: "Data from Cessna Model 172M Pilot's Operating Handbook (1976)"
     cruisePerformance:
         # Pressure Altitude
         2000:

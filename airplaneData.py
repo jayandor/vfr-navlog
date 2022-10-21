@@ -1,6 +1,7 @@
 airplaneData = {
     "cessna172m": {
         "label": "Cessna 172 M",
+        "dataSource": "Data from Cessna Model 172M Pilot's Operating Handbook (1976)",
         "airspeedCalibration": {
             # Flaps: (KIAS, KCAS)
             0: {

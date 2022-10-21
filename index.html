@@ -134,21 +134,28 @@
                     class="accordion-collapse collapse show"
                     aria-labelledby="airplane-data-heading"
                     >
-                    <div class="accordion-body row initial-width gx-4 gy-2 my-0">
-                        <div>
-                            <label for="navlog.planeType" class="form-label d-inline-block me-2">Airplane Type:</label>
-                            <select class="form-select d-inline-block" id="navlog.planeType" v-model="navlog.planeType">
-                                <option v-for="type in airplaneTypes" :value="type">
-                                    {{ this.airplaneData[type]["label"] }}
-                                </option>
-                            </select>
+                    <div class="accordion-body">
+                        <div class="row initial-width gx-4 gy-2 mb-2">
+                            <div>
+                                <label for="navlog.planeType" class="form-label d-inline-block me-2">Airplane Type:</label>
+                                <select class="form-select d-inline-block" id="navlog.planeType" v-model="navlog.planeType">
+                                    <option v-for="type in airplaneTypes" :value="type">
+                                        {{ airplaneData[type]["label"] }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="navlog.weight" class="form-label d-inline-block me-2">Airplane total weight:</label>
+                                <input type="number" class="form-control d-inline-block" id="navlog.weight" size="4" min="0" v-model="navlog.weight" step="5">
+                            </div>
                         </div>
 
-                        <div>
-                            <label for="navlog.weight" class="form-label d-inline-block me-2">Airplane total weight:</label>
-                            <input type="number" class="form-control d-inline-block" id="navlog.weight" size="4" min="0" v-model="navlog.weight" step="5">
-                        </div>
+                        <p v-if="airplaneData[navlog.planeType]">
+                            <small><em class="text-faded">{{ airplaneData[navlog.planeType]["dataSource"] }}</em></small>
+                        </p>
                     </div>
+
                 </div>
             </div>
 

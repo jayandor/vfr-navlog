@@ -44,6 +44,14 @@ for planeName, data in airplaneData.items():
 
 
 
+    # Data Source
+    dataSource = data["dataSource"]
+
+    addToOutput("""
+    dataSource: \"%s\"""" % (dataSource))
+
+
+
     # Cruise performance
     addToOutput("""
     cruisePerformance:
