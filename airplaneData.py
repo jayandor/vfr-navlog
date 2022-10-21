@@ -217,6 +217,117 @@ airplaneData = {
                 43 94 5.7
                 38 88 5.3"""
             ],
+        },
+        "taxiPerformance": {
+            "taxiTakeoffFuelUsed": 1.1,
+        },
+        "climbPerformance": {
+            2300: {
+                0: {
+                    "tempC": 15,
+                    "climbSpeedKias": 78,
+                    "rateOfClimbFpm": 645,
+                    "time": 0,
+                    "fuelUsedGallons": 0.0,
+                    "distanceNm": 0
+                },
+                1000: {
+                    "tempC": 13,
+                    "climbSpeedKias": 77,
+                    "rateOfClimbFpm": 605,
+                    "time": 2,
+                    "fuelUsedGallons": 0.3,
+                    "distanceNm": 2
+                },
+                2000: {
+                    "tempC": 11,
+                    "climbSpeedKias": 76,
+                    "rateOfClimbFpm": 560,
+                    "time": 3,
+                    "fuelUsedGallons": 0.7,
+                    "distanceNm": 4
+                },
+                3000: {
+                    "tempC": 9,
+                    "climbSpeedKias": 75,
+                    "rateOfClimbFpm": 520,
+                    "time": 5,
+                    "fuelUsedGallons": 1.1,
+                    "distanceNm": 7
+                },
+                4000: {
+                    "tempC": 7,
+                    "climbSpeedKias": 74,
+                    "rateOfClimbFpm": 480,
+                    "time": 7,
+                    "fuelUsedGallons": 1.5,
+                    "distanceNm": 9
+                },
+                5000: {
+                    "tempC": 5,
+                    "climbSpeedKias": 73,
+                    "rateOfClimbFpm": 435,
+                    "time": 9,
+                    "fuelUsedGallons": 1.9,
+                    "distanceNm": 12
+                },
+                6000: {
+                    "tempC": 3,
+                    "climbSpeedKias": 72,
+                    "rateOfClimbFpm": 395,
+                    "time": 12,
+                    "fuelUsedGallons": 2.3,
+                    "distanceNm": 16
+                },
+                7000: {
+                    "tempC": 1,
+                    "climbSpeedKias": 71,
+                    "rateOfClimbFpm": 355,
+                    "time": 15,
+                    "fuelUsedGallons": 2.8,
+                    "distanceNm": 19
+                },
+                8000: {
+                    "tempC": -1,
+                    "climbSpeedKias": 70,
+                    "rateOfClimbFpm": 315,
+                    "time": 18,
+                    "fuelUsedGallons": 3.3,
+                    "distanceNm": 23
+                },
+                9000: {
+                    "tempC": -3,
+                    "climbSpeedKias": 69,
+                    "rateOfClimbFpm": 270,
+                    "time": 21,
+                    "fuelUsedGallons": 3.9,
+                    "distanceNm": 28
+                },
+                10000: {
+                    "tempC": -5,
+                    "climbSpeedKias": 68,
+                    "rateOfClimbFpm": 230,
+                    "time": 25,
+                    "fuelUsedGallons": 4.5,
+                    "distanceNm": 33
+                },
+                11000: {
+                    "tempC": -7,
+                    "climbSpeedKias": 67,
+                    "rateOfClimbFpm": 185,
+                    "time": 30,
+                    "fuelUsedGallons": 5.2,
+                    "distanceNm": 40
+                },
+                12000: {
+                    "tempC": -9,
+                    "climbSpeedKias": 66,
+                    "rateOfClimbFpm": 145,
+                    "time": 36,
+                    "fuelUsedGallons": 6.1,
+                    "distanceNm": 48
+                }
+            }
         }
     }
 }

@@ -1,6 +1,10 @@
+const STANDARD_TEMP = 15;
+
 let defaultNavlogData = {
 
     planeType: "cessna172m",
+
+    weight: 2300,
 
     originICAO: '',
     originTemp: 15,
@@ -82,7 +86,7 @@ export let navlogApp = function(airplaneData, windsAloft) {
                         // Use temp data acquired directly from FAA winds aloft API
                         if (!this.originWindsAloft) return this.navlog.originElev;
 
-                        let alt = this.chooseClosestValue(this.navlog.originAloftDataAltLowerCustom, Object.keys(this.originWindsAloft));
+                        let alt = this.chooseClosestKey(this.navlog.originAloftDataAltLowerCustom, Object.keys(this.originWindsAloft));
 
                         if (this.originWindsAloft[alt]["tempC"] !== null) {
                             return alt;
@@ -105,7 +109,7 @@ export let navlogApp = function(airplaneData, windsAloft) {
                         // Use temp data acquired directly from FAA winds aloft API
                         if (!this.originWindsAloft) return 0;
 
-                        let alt = this.chooseClosestValue(this.originTempAloftAltLower, Object.keys(this.originWindsAloft));
+                        let alt = this.chooseClosestKey(this.originTempAloftAltLower, Object.keys(this.originWindsAloft));
 
                         if (this.originWindsAloft[alt]["tempC"] !== null) {
                             return this.originWindsAloft[alt]["tempC"];
@@ -130,7 +134,7 @@ export let navlogApp = function(airplaneData, windsAloft) {
                         // Use wind data acquired directly from FAA winds aloft API
                         if (!this.originWindsAloft) return this.navlog.originElev;
 
-                        let alt = this.chooseClosestValue(this.navlog.originAloftDataAltLowerCustom, Object.keys(this.originWindsAloft));
+                        let alt = this.chooseClosestKey(this.navlog.originAloftDataAltLowerCustom, Object.keys(this.originWindsAloft));
 
                         return alt;
                     } else {
@@ -148,7 +152,7 @@ export let navlogApp = function(airplaneData, windsAloft) {
                         // Use wind data acquired directly from FAA winds aloft API
                         if (!this.originWindsAloft) return 0;
 
-                        let alt = this.chooseClosestValue(this.originWindDataAloftAltLower, Object.keys(this.originWindsAloft));
+                        let alt = this.chooseClosestKey(this.originWindDataAloftAltLower, Object.keys(this.originWindsAloft));
 
                         return this.originWindsAloft[alt]["windDirectionDegrees"];
                     } else {
@@ -166,7 +170,7 @@ export let navlogApp = function(airplaneData, windsAloft) {
                         // Use wind data acquired directly from FAA winds aloft API
                         if (!this.originWindsAloft) return 0;
 
-                        let alt = this.chooseClosestValue(this.originWindDataAloftAltLower, Object.keys(this.originWindsAloft));
+                        let alt = this.chooseClosestKey(this.originWindDataAloftAltLower, Object.keys(this.originWindsAloft));
 
                         return this.originWindsAloft[alt]["windSpeedKnots"];
                     } else {
@@ -183,7 +187,7 @@ export let navlogApp = function(airplaneData, windsAloft) {
                     // Use wind data acquired directly from FAA winds aloft API
                     if (!this.originWindsAloft) return this.navlog.originElev;
 
-                    let alt = this.chooseClosestValue(this.navlog.originAloftDataAltUpperCustom, Object.keys(this.originWindsAloft));
+                    let alt = this.chooseClosestKey(this.navlog.originAloftDataAltUpperCustom, Object.keys(this.originWindsAloft));
 
                     return alt;
                 } else {
@@ -196,7 +200,7 @@ export let navlogApp = function(airplaneData, windsAloft) {
                     // Use wind data acquired directly from FAA winds aloft API
                     if (!this.originWindsAloft) return 0;
 
-                    let alt = this.chooseClosestValue(this.navlog.originAloftDataAltUpperCustom, Object.keys(this.originWindsAloft));
+                    let alt = this.chooseClosestKey(this.navlog.originAloftDataAltUpperCustom, Object.keys(this.originWindsAloft));
 
                     return this.originWindsAloft[alt]["windDirectionDegrees"];
                 } else {
@@ -209,7 +213,7 @@ export let navlogApp = function(airplaneData, windsAloft) {
                     // Use wind data acquired directly from FAA winds aloft API
                     if (!this.originWindsAloft) return 0;
 
-                    let alt = this.chooseClosestValue(this.navlog.originAloftDataAltUpperCustom, Object.keys(this.originWindsAloft));
+                    let alt = this.chooseClosestKey(this.navlog.originAloftDataAltUpperCustom, Object.keys(this.originWindsAloft));
 
                     return this.originWindsAloft[alt]["windSpeedKnots"];
                 } else {
@@ -222,7 +226,7 @@ export let navlogApp = function(airplaneData, windsAloft) {
                     // Use temp data acquired directly from FAA winds aloft API
                     if (!this.originWindsAloft) return 0;
 
-                    let alt = this.chooseClosestValue(this.navlog.originAloftDataAltUpperCustom, Object.keys(this.originWindsAloft));
+                    let alt = this.chooseClosestKey(this.navlog.originAloftDataAltUpperCustom, Object.keys(this.originWindsAloft));
 
                     if (this.originWindsAloft[alt]["tempC"] !== null) {
                         return this.originWindsAloft[alt]["tempC"];
@@ -234,6 +238,46 @@ export let navlogApp = function(airplaneData, windsAloft) {
                     // Use user-entered temp direction
                     return this.navlog.originTempAloftUpperCustom
                 }
+            },
+
+            climbPerformanceData() {
+                if (this.airplaneDataLoaded) {
+                    let weight_data = this.chooseClosestValue(this.navlog.weight, this.generalAirplaneData["climbPerformance"]);
+                    let alt_data = this.chooseClosestValue(this.cruisePressAlt, weight_data);
+                    return alt_data;
+                } else {
+                    return null;
+                }
+            },
+            originClimbPerformanceData() {
+                if (this.airplaneDataLoaded) {
+                    let weight_data = this.chooseClosestValue(this.navlog.weight, this.generalAirplaneData["climbPerformance"]);
+                    let alt_data = this.chooseClosestValue(this.originPressAlt, weight_data);
+                    return alt_data;
+                } else {
+                    return null;
+                }
+            },
+            timeToClimb() {
+                if (this.climbPerformanceData) {
+                    let temp_factor = (1 + (0.1 * (this.navlog.originTemp - STANDARD_TEMP) / 10));
+                    let diff = this.climbPerformanceData.time * temp_factor - this.originClimbPerformanceData.time * temp_factor;
+                    return Math.max(diff, 0);
+                }
+                return 0;
+            },
+            climbFuelBurned() {
+                if (this.climbPerformanceData) {
+                    let temp_factor = (1 + (0.1 * (this.navlog.originTemp - STANDARD_TEMP) / 10));
+                    let diff = this.climbPerformanceData.fuelUsedGallons * temp_factor - this.originClimbPerformanceData.fuelUsedGallons * temp_factor;
+                    return Math.max(diff, 0);
+                }
+                return 0;
+            },
+            climbKIAS() {
+                if (this.climbPerformanceData)
+                    return this.climbPerformanceData.climbSpeedKias;
+                return 0;
             },
 
             cruiseTemp() {
@@ -287,23 +331,21 @@ export let navlogApp = function(airplaneData, windsAloft) {
             cruisePerformanceData() {
                 if (this.airplaneDataLoaded) {
                     let press_alts = Object.keys(this.generalCruisePerformanceData);
-                    let press_alt = this.chooseClosestValue(this.cruisePressAlt, press_alts);
+                    let press_alt = this.chooseClosestKey(this.cruisePressAlt, press_alts);
 
                     let temp_performance = this.generalCruisePerformanceData[press_alt];
 
-                    const standard_temp = 15;
-
                     let temp =
-                        this.cruiseTemp < (standard_temp - 20) ?
+                        this.cruiseTemp < (STANDARD_TEMP - 20) ?
                             "below" :
-                            this.cruiseTemp > (standard_temp + 20) ?
+                            this.cruiseTemp > (STANDARD_TEMP + 20) ?
                                 "above" :
                                 "standard";
 
                     let rpm_performance = temp_performance[temp];
 
                     let rpms = Object.keys(rpm_performance);
-                    let rpm = this.chooseClosestValue(this.navlog.cruiseRPM, rpms);
+                    let rpm = this.chooseClosestKey(this.navlog.cruiseRPM, rpms);
 
                     return rpm_performance[rpm];
                 } else {
@@ -374,7 +416,8 @@ export let navlogApp = function(airplaneData, windsAloft) {
                 return (a + b) / 2;
             },
 
-            chooseClosestValue(x, vals) {
+            // Return element from array that is numerically the closest to the given value
+            chooseClosestKey(x, vals) {
                 x = parseFloat(x);
 
                 let closest = null;
@@ -393,6 +436,15 @@ export let navlogApp = function(airplaneData, windsAloft) {
                 }
 
                 return closest;
+            },
+
+            // Return value from object whose key is numerically the closest to the given value
+            chooseClosestValue(x, obj) {
+                let keys = Object.keys(obj);
+
+                let key = this.chooseClosestKey(x, keys);
+
+                return obj[key];
             },
 
             CtoF(celsius) {
@@ -559,7 +611,7 @@ export let navlogApp = function(airplaneData, windsAloft) {
             //     if (this.airplaneDataLoaded) {
             //         const flaps = 0;
             //         let kias_vals = Object.keys(this.generalAirspeedCalibrationData[flaps]);
-            //         let closest_kias = this.chooseClosestValue(this.cruisePerformanceData.ktas, )
+            //         let closest_kias = this.chooseClosestKey(this.cruisePerformanceData.ktas, )
             //     } else {
             //         return null;
             //     }
@@ -570,7 +622,7 @@ export let navlogApp = function(airplaneData, windsAloft) {
                 // if (this.airplaneDataLoaded) {
                 //     const flaps = 0;
                 //     let kias_vals = Object.keys(this.generalAirspeedCalibrationData[flaps]);
-                //     let closest_kias = this.chooseClosestValue(this.cruisePerformanceData.ktas, )
+                //     let closest_kias = this.chooseClosestKey(this.cruisePerformanceData.ktas, )
                 // } else {
                 //     return null;
                 // }

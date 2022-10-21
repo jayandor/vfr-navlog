@@ -98,6 +98,25 @@ for planeName, data in airplaneData.items():
             addToOutput("""
             %s: %s""" % (kias, kcas))
 
+    # Climb performance
+    addToOutput("""
+    climbPerformance:
+        # Weight (lbs)""")
+    climb_performance_data = data["climbPerformance"]
+
+    for weight, climb_alt_data in climb_performance_data.items():
+        addToOutput("""
+        %s:
+            # Press. Altitude""" % (weight))
+
+        for press_alt, climb_data in climb_alt_data.items():
+            addToOutput("""
+            %s:""" % (press_alt))
+
+            for key, val in climb_data.items():
+                addToOutput("""
+                %s: %s""" % (key, val))
+
     print()
 
 with open(outputFilepath, 'w') as f:

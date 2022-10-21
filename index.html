@@ -73,6 +73,9 @@
                                 {{ this.airplaneData[type]["label"] }}
                             </option>
                         </select>
+
+                        <label for="navlog.weight" class="form-label d-inline-block me-2">Airplane total weight:</label>
+                        <input type="number" class="form-control d-inline-block" id="navlog.weight" size="4" min="0" v-model="navlog.weight" step="5">
                     </div>
                 </div>
             </div>
@@ -159,6 +162,19 @@
                 <p>
                     Destination Pressure Altitude: <span class="calculated">{{ formatPressAlt(destPressAlt) }} ft MSL</span>
                 </p>
+            </div>
+
+            <hr>
+
+            <div class="py-3">
+                <h2>Climb Data</h2>
+                <div class="row initial-width gx-4 gy-2 my-2">
+
+                </div>
+
+                <p><span class="calculated">Time to climb to {{ navlog.cruiseAlt }} ft MSL: {{ timeToClimb.toFixed(0) }} minutes</span></p>
+                <p><span class="calculated">Fuel burned climbing to {{ navlog.cruiseAlt }} ft MSL: {{ formatFuelBurn(climbFuelBurned) }} gallons</span></p>
+                <p><span class="calculated">KIAS while climbing to {{ navlog.cruiseAlt }} ft MSL: {{ formatAirspeed(climbKIAS) }} kts</span></p>
             </div>
 
             <hr>
@@ -365,6 +381,7 @@
                 <small>
                     To-do:
                     <ul>
+                        <li>Add climb data and allow calculation of climb leg</li>
                         <li>Allow creation of multiple legs</li>
                         <li>Add feedback to show that it's interpolating cruise data</li>
                         <li>Interpolate cruise performance data</li>
