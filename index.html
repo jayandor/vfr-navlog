@@ -32,7 +32,7 @@
         }
 
         .text-faded {
-            color: #686868;
+            color: #999;
         }
 
         .info-box {
@@ -64,6 +64,41 @@
             padding: 3rem 4rem;
             border-radius: 5px;
         }
+
+        .accordion-header {
+            display: flex;
+            cursor:  pointer;
+            margin-bottom: 0;
+            padding: 0.7rem 1.2rem;
+            border-bottom: 1px dashed #858484;
+        }
+
+        .accordion-header::after {
+            content: '\25BC';
+            margin-left: auto;
+        }
+
+        .accordion-header.collapsed::after {
+            content: '\25B2';
+        }
+
+        .accordion-header:hover {
+            cursor:  pointer;
+            background: #d3d2d2;
+        }
+
+        .accordion-header:hover + .accordion-collapse {
+            background: #dfdfdf;
+        }
+
+        .accordion-body {
+            padding: 0.7rem 1.2rem;
+        }
+
+        .section-container {
+            margin-bottom: 1rem;
+        }
+
     </style>
 
     <link rel="shortcut icon" type="image/jpg" href="/vfr-navlog/favicon.ico"/>
@@ -84,320 +119,451 @@
 
             <hr>
 
-            <div class="py-3">
-                <h2>Airplane Data</h2>
-                <div class="row initial-width gx-4 gy-2 my-2">
-                    <div>
-                        <label for="navlog.planeType" class="form-label d-inline-block me-2">Airplane Type:</label>
-                        <select class="form-select d-inline-block" id="navlog.planeType" v-model="navlog.planeType">
-                            <option v-for="type in airplaneTypes" :value="type">
-                                {{ this.airplaneData[type]["label"] }}
-                            </option>
-                        </select>
+            <div class="section-container">
+                <h2
+                    class="accordion-header"
+                    id="airplane-data-heading"
+                    data-bs-target="#airplane-data"
+                    aria-controls="airplane-data"
+                    data-bs-toggle="collapse" aria-expanded="true"
+                    >
+                    Airplane Data
+                </h2>
+                <div
+                    id="airplane-data"
+                    class="accordion-collapse collapse show"
+                    aria-labelledby="airplane-data-heading"
+                    >
+                    <div class="accordion-body row initial-width gx-4 gy-2 my-0">
+                        <div>
+                            <label for="navlog.planeType" class="form-label d-inline-block me-2">Airplane Type:</label>
+                            <select class="form-select d-inline-block" id="navlog.planeType" v-model="navlog.planeType">
+                                <option v-for="type in airplaneTypes" :value="type">
+                                    {{ this.airplaneData[type]["label"] }}
+                                </option>
+                            </select>
+                        </div>
 
-                        <label for="navlog.weight" class="form-label d-inline-block me-2">Airplane total weight:</label>
-                        <input type="number" class="form-control d-inline-block" id="navlog.weight" size="4" min="0" v-model="navlog.weight" step="5">
+                        <div>
+                            <label for="navlog.weight" class="form-label d-inline-block me-2">Airplane total weight:</label>
+                            <input type="number" class="form-control d-inline-block" id="navlog.weight" size="4" min="0" v-model="navlog.weight" step="5">
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <hr>
-
-            <div class="py-3">
-                <h2>Origin Data</h2>
-                <div class="row initial-width gx-4 gy-2 my-2">
-                    <div>
-                        <label for="navlog.originICAO" class="form-label d-inline-block me-2">Origin ICAO airport code:</label>
-                        <input type="text" class="form-control d-inline-block" id="navlog.originICAO" size="4" minlength="4" maxlength="4" v-model="navlog.originICAO">
-                    </div>
-
-                    <div>
-                        <label for="navlog.originTemp" class="form-label d-inline-block me-2">Origin temp (&deg;C):</label>
-                        <input type="number" class="form-control d-inline-block" id="navlog.originTemp" size="3" v-model="navlog.originTemp">
-                        (<span class="calculated">{{ formatTemp(CtoF(navlog.originTemp)) }}&deg;F</span>)
-                    </div>
-
-                    <div>
-                        <label for="navlog.originAltim" class="form-label d-inline-block me-2">Origin altimeter setting (inHg):</label>
-                        <input type="number" class="form-control d-inline-block" id="navlog.originAltim" size="5" step="0.01" v-model="navlog.originAltim">
-                    </div>
-
-                    <div>
-                        <label for="navlog.originWindDir" class="form-label d-inline-block me-2">Origin wind direction (&deg;):</label>
-                        <input type="number" class="form-control d-inline-block" id="navlog.originWindDir" size="3" v-model="navlog.originWindDir" min="0" max="359" step="10">
-                    </div>
-
-                    <div>
-                        <label for="navlog.originWindSpeed" class="form-label d-inline-block me-2">Origin wind speed (kts):</label>
-                        <input type="number" class="form-control d-inline-block" id="navlog.originWindSpeed" size="4" v-model="navlog.originWindSpeed" step="1">
-                    </div>
-
-                    <div>
-                        <label for="navlog.originElev" class="form-label d-inline-block me-2">Origin field elevation (feet):</label>
-                        <input type="number" class="form-control d-inline-block" id="navlog.originElev" size="4" v-model="navlog.originElev" step="1">
-                    </div>
-                </div>
-
-                <p>
-                    Origin Pressure Altitude: <span class="calculated">{{ originPressAlt.toFixed(0) }} ft MSL</span>
-                </p>
-            </div>
-
-            <hr>
-
-            <div class="py-3">
-                <h2>Destination Data</h2>
-                <div class="row initial-width gx-4 gy-2 my-2">
-                    <div>
-                        <label for="navlog.destICAO" class="form-label d-inline-block me-2">Destination ICAO airport code:</label>
-                        <input type="text" class="form-control d-inline-block" id="navlog.destICAO" size="4" minlength="4" maxlength="4" v-model="navlog.destICAO">
-                    </div>
-
-                    <div>
-                        <label for="navlog.destTemp" class="form-label d-inline-block me-2">Destination temp (&deg;C):</label>
-                        <input type="number" class="form-control d-inline-block" id="navlog.destTemp" size="3" v-model="navlog.destTemp">
-                        (<span class="calculated">{{ formatTemp(CtoF(navlog.destTemp)) }}&deg;F</span>)
-                    </div>
-
-                    <div>
-                        <label for="navlog.destAltim" class="form-label d-inline-block me-2">Destination altimeter setting (inHg):</label>
-                        <input type="number" class="form-control d-inline-block" id="navlog.destAltim" size="5" step="0.01" v-model="navlog.destAltim">
-                    </div>
-
-                    <div>
-                        <label for="navlog.destWindDir" class="form-label d-inline-block me-2">Destination wind direction (&deg;):</label>
-                        <input type="number" class="form-control d-inline-block" id="navlog.destWindDir" size="3" v-model="navlog.destWindDir" min="0" max="359" step="10">
-                    </div>
-
-                    <div>
-                        <label for="navlog.destWindSpeed" class="form-label d-inline-block me-2">Destination wind speed (kts):</label>
-                        <input type="number" class="form-control d-inline-block" id="navlog.destWindSpeed" size="4" v-model="navlog.destWindSpeed" step="1">
-                    </div>
-
-                    <div>
-                        <label for="navlog.destElev" class="form-label d-inline-block me-2">Destination field elevation (feet):</label>
-                        <input type="number" class="form-control d-inline-block" id="navlog.destElev" size="4" v-model="navlog.destElev" step="1">
-                    </div>
-                </div>
-
-                <p>
-                    Destination Pressure Altitude: <span class="calculated">{{ formatPressAlt(destPressAlt) }} ft MSL</span>
-                </p>
-            </div>
-
-            <hr>
-
-            <div class="py-3">
-                <h2>Taxi Data</h2>
-
-                <p><span class="calculated">Fuel burned during taxi and takeoff: {{ formatFuelBurn(taxiTakeoffFuelUsed) }} gallons</span></p>
-            </div>
-
-            <hr>
-
-            <div class="py-3">
-                <h2>Climb Data</h2>
-
-                <p><span class="calculated">Time to climb to {{ navlog.cruiseAlt }} ft MSL: {{ timeToClimb.toFixed(0) }} minutes</span></p>
-                <p><span class="calculated">Fuel burned climbing to {{ navlog.cruiseAlt }} ft MSL: {{ formatFuelBurn(climbFuelBurned) }} gallons</span></p>
-                <p><span class="calculated">KIAS while climbing to {{ navlog.cruiseAlt }} ft MSL: {{ formatAirspeed(climbKIAS) }} kts</span></p>
-            </div>
-
-            <hr>
-
-            <div class="py-3">
-                <h2>Cruise Data</h2>
-                <div class="row initial-width gx-4 gy-2 my-2">
-                    <div>
-                        <label for="navlog.cruiseAlt" class="form-label d-inline-block me-2">Cruise altitude (feet):</label>
-                        <input type="number" class="form-control d-inline-block" id="navlog.cruiseAlt" size="4" v-model="navlog.cruiseAlt" step="1000" min="3500" max="17500">
-                    </div>
-                    <div>
-                        <label for="navlog.cruiseRPM" class="form-label d-inline-block me-2">Cruise RPM:</label>
-                        <input type="number" class="form-control d-inline-block" id="navlog.cruiseRPM" size="4" v-model="navlog.cruiseRPM" step="50" min="1000">
-                    </div>
-
-                    <div>
-                        <label for="navlog.cruiseTrueCourse" class="form-label d-inline-block me-2">True Course (&deg;):</label>
-                        <input type="number" class="form-control d-inline-block" id="navlog.cruiseTrueCourse" size="3" v-model="navlog.cruiseTrueCourse" min="0" max="359" step="1">
-                    </div>
-                </div>
-
-                <p>Cruise Pressure Altitude: <span class="calculated">{{ formatPressAlt(cruisePressAlt) }} feet</span></p>
-                <p>Cruise Wind Correction Angle: <span class="calculated">{{ (windCorrectionAngle > 0 ? "+" : "") + formatDirection(windCorrectionAngle) }}&deg;</span></p>
-                <p>Cruise True Heading: <span class="calculated">{{ formatDirection(navlog.cruiseTrueCourse + windCorrectionAngle) }}&deg;</span></p>
-                <template v-if="cruisePerformanceData">
-                    <p>Cruise TAS: <span class="calculated">{{ formatAirspeed(cruisePerformanceData.ktas) }} kts</span></p>
-                    <p>Cruise CAS: <span class="calculated">{{ formatAirspeed(cruiseKCAS) }} kts</span></p>
-                    <p>Cruise % BHP: <span class="calculated">{{ formatPower(cruisePerformanceData.bhp) }}%</span></p>
-                    <p>Cruise fuel burn: <span class="calculated">{{ formatFuelBurn(cruisePerformanceData.gph) }} gph</span></p>
-                    <p>Cruise Ground Speed: <span class="calculated">{{ formatAirspeed(groundSpeed) }} kts at {{ navlog.cruiseAlt }} feet</span></p>
-                </template>
-            </div>
-
-            <hr>
-
-            <div class="py-3">
-                <h2 class="mb-4">Winds/Temps Aloft Data</h2>
-
-                <div class="info-box">
-                    <p>In this section, you can enter the upper and lower altitudes (and if desired, custom winds aloft values) that surround your cruise altitude so that the app can interpolate the winds aloft values.</p>
-                    <p><em>(Example: if your cruise altitude is 4500 feet, and you have winds aloft data for 3000 feet and 6000 feet, you can enter the values for 3000 feet in the "Lower" section and the values for 6000 feet in the "Upper" section. The values for 4500 feet will be automatically interpolated from these surrounding values.)</em></p>
-                </div>
-
-                <h4>Lower</h4>
-
-                <div class="my-3">
-                    <label for="navlog.originAloftDataAltLowerCustom" class="form-label d-inline-block me-2">Custom wind/temperature data lower altitude (feet)</label>
-                    <input type="number" class="form-control d-inline-block" id="navlog.originAloftDataAltLowerCustom" size="4" v-model="navlog.originAloftDataAltLowerCustom" step="1000" :disabled="navlog.originTempAloftLowerUseGround && navlog.originWindDataAloftLowerUseGround">
-                </div>
-
-
-
-                <!-- Temperature -->
-                <div>
-                    <label for="navlog.originTempAloftLowerUseGround" class="form-label d-inline-block me-2">Use origin temperature at ground as lower value:</label>
-                    <input type="checkbox" class="form-check-input" id="navlog.originTempAloftLowerUseGround" v-model="navlog.originTempAloftLowerUseGround">
-                </div>
-
-                <template v-if="!navlog.originTempAloftLowerUseGround">
-                    <!-- Don't use the temperature data reported from the airport -->
-
-                    <div>
-                        <label for="navlog.originTempAloftLowerUseFAAData" class="form-label d-inline-block me-2">Use origin temperature from FAA Winds Aloft API as lower value:</label>
-                        <input type="checkbox" class="form-check-input" id="navlog.originTempAloftLowerUseFAAData" v-model="navlog.originTempAloftLowerUseFAAData">
-                    </div>
-
-
-                    <template v-if="!navlog.originTempAloftLowerUseFAAData">
-
-                        <!-- Don't use the temperature data acquired from the FAA winds aloft API -->
-                        <div class="row initial-width gx-4 gy-2 my-2">
+            
+            <div class="section-container">
+                <h2
+                    class="accordion-header"
+                    id="origin-data-heading"
+                    data-bs-target="#origin-data"
+                    aria-controls="origin-data"
+                    data-bs-toggle="collapse" aria-expanded="true"
+                    >
+                    Origin Data
+                </h2>
+                <div
+                    id="origin-data"
+                    class="accordion-collapse collapse show"
+                    aria-labelledby="origin-data-heading"
+                    >
+                    <div class="accordion-body">
+                        <div class="row initial-width gx-4 gy-2 mb-2">
                             <div>
-                                <label for="navlog.originTempAloftLowerCustom" class="form-label d-inline-block me-2">Origin lower temperature (&deg;C):</label>
-                                <input type="number" class="form-control d-inline-block me-2" id="navlog.originTempAloftLowerCustom" size="4" v-model="navlog.originTempAloftLowerCustom" step="1">
+                                <label for="navlog.originICAO" class="form-label d-inline-block me-2">Origin ICAO airport code:</label>
+                                <input type="text" class="form-control d-inline-block" id="navlog.originICAO" size="4" minlength="4" maxlength="4" v-model="navlog.originICAO">
+                            </div>
 
-                                <span class="calculated">at {{ originTempAloftAltLower }} ft</span>
+                            <div>
+                                <label for="navlog.originTemp" class="form-label d-inline-block me-2">Origin temp (&deg;C):</label>
+                                <input type="number" class="form-control d-inline-block" id="navlog.originTemp" size="3" v-model="navlog.originTemp">
+                                (<span class="calculated">{{ formatTemp(CtoF(navlog.originTemp)) }}&deg;F</span>)
+                            </div>
+
+                            <div>
+                                <label for="navlog.originAltim" class="form-label d-inline-block me-2">Origin altimeter setting (inHg):</label>
+                                <input type="number" class="form-control d-inline-block" id="navlog.originAltim" size="5" step="0.01" v-model="navlog.originAltim">
+                            </div>
+
+                            <div>
+                                <label for="navlog.originWindDir" class="form-label d-inline-block me-2">Origin wind direction (&deg;):</label>
+                                <input type="number" class="form-control d-inline-block" id="navlog.originWindDir" size="3" v-model="navlog.originWindDir" min="0" max="359" step="10">
+                            </div>
+
+                            <div>
+                                <label for="navlog.originWindSpeed" class="form-label d-inline-block me-2">Origin wind speed (kts):</label>
+                                <input type="number" class="form-control d-inline-block" id="navlog.originWindSpeed" size="4" v-model="navlog.originWindSpeed" step="1">
+                            </div>
+
+                            <div>
+                                <label for="navlog.originElev" class="form-label d-inline-block me-2">Origin field elevation (feet):</label>
+                                <input type="number" class="form-control d-inline-block" id="navlog.originElev" size="4" v-model="navlog.originElev" step="1">
                             </div>
                         </div>
-                    </template>
 
-                    <template v-else>
-                        <!-- Use the temperature data acquired from the FAA winds aloft API -->
-                        <p class="calculated">Origin lower temperature: {{ formatTemp(originTempAloftLower) }}&deg; at {{ originTempAloftAltLower }} ft</p>
-                    </template>
-                </template>
-
-                <template v-else>
-                    <!-- Use the temperature data reported from the airport -->
-                    <p class="calculated">Origin lower temperature: {{ formatTemp(originTempAloftLower) }}&deg;C at {{ originTempAloftAltLower }} ft</p>
-                </template>
-
-
-
-                <!-- Wind -->
-                <div>
-                    <label for="navlog.originWindDataAloftLowerUseGround" class="form-label d-inline-block me-2">Use origin wind data at ground as lower value:</label>
-                    <input type="checkbox" class="form-check-input" id="navlog.originWindDataAloftLowerUseGround" v-model="navlog.originWindDataAloftLowerUseGround">
+                        <p>
+                            Origin Pressure Altitude: <span class="calculated">{{ originPressAlt.toFixed(0) }} ft MSL</span>
+                        </p>
+                    </div>
                 </div>
+            </div>
 
-                <template v-if="!navlog.originWindDataAloftLowerUseGround">
-                    <!-- Don't use the wind data reported from the airport -->
-                    <div>
-                        <div>
-                            <label for="navlog.originWindDataAloftLowerUseFAAData" class="form-label d-inline-block me-2">Use origin wind data from FAA Winds Aloft API as lower value:</label>
-                            <input type="checkbox" class="form-check-input" id="navlog.originWindDataAloftLowerUseFAAData" v-model="navlog.originWindDataAloftLowerUseFAAData">
+            <div class="section-container">
+                <h2
+                    class="accordion-header"
+                    id="destination-data-heading"
+                    data-bs-target="#destination-data"
+                    aria-controls="destination-data"
+                    data-bs-toggle="collapse" aria-expanded="true"
+                    >
+                    Destination Data
+                </h2>
+                <div
+                    id="destination-data"
+                    class="accordion-collapse collapse show"
+                    aria-labelledby="destination-data-heading"
+                    >
+                    <div class="accordion-body">
+                        <div class="row initial-width gx-4 gy-2 mb-2">
+                            <div>
+                                <label for="navlog.destICAO" class="form-label d-inline-block me-2">Destination ICAO airport code:</label>
+                                <input type="text" class="form-control d-inline-block" id="navlog.destICAO" size="4" minlength="4" maxlength="4" v-model="navlog.destICAO">
+                            </div>
+
+                            <div>
+                                <label for="navlog.destTemp" class="form-label d-inline-block me-2">Destination temp (&deg;C):</label>
+                                <input type="number" class="form-control d-inline-block" id="navlog.destTemp" size="3" v-model="navlog.destTemp">
+                                (<span class="calculated">{{ formatTemp(CtoF(navlog.destTemp)) }}&deg;F</span>)
+                            </div>
+
+                            <div>
+                                <label for="navlog.destAltim" class="form-label d-inline-block me-2">Destination altimeter setting (inHg):</label>
+                                <input type="number" class="form-control d-inline-block" id="navlog.destAltim" size="5" step="0.01" v-model="navlog.destAltim">
+                            </div>
+
+                            <div>
+                                <label for="navlog.destWindDir" class="form-label d-inline-block me-2">Destination wind direction (&deg;):</label>
+                                <input type="number" class="form-control d-inline-block" id="navlog.destWindDir" size="3" v-model="navlog.destWindDir" min="0" max="359" step="10">
+                            </div>
+
+                            <div>
+                                <label for="navlog.destWindSpeed" class="form-label d-inline-block me-2">Destination wind speed (kts):</label>
+                                <input type="number" class="form-control d-inline-block" id="navlog.destWindSpeed" size="4" v-model="navlog.destWindSpeed" step="1">
+                            </div>
+
+                            <div>
+                                <label for="navlog.destElev" class="form-label d-inline-block me-2">Destination field elevation (feet):</label>
+                                <input type="number" class="form-control d-inline-block" id="navlog.destElev" size="4" v-model="navlog.destElev" step="1">
+                            </div>
                         </div>
 
-                        <template v-if="!navlog.originWindDataAloftLowerUseFAAData">
-                            <!-- Don't use the wind data acquired from the FAA winds aloft API -->
-                            <div class="row initial-width gx-4 gy-2 my-2">
-                                <label for="navlog.originWindDirAloftLowerCustom" class="form-label d-inline-block me-2">Origin lower wind direction (&deg;):</label>
-                                <input type="number" class="form-control d-inline-block" id="navlog.originWindDirAloftLowerCustom" size="3" v-model="navlog.originWindDirAloftLowerCustom" min="0" max="359" step="10">
+                        <p>
+                            Destination Pressure Altitude: <span class="calculated">{{ formatPressAlt(destPressAlt) }} ft MSL</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
 
-                                <label for="navlog.originWindSpeedAloftLowerCustom" class="form-label d-inline-block mx-2">Wind speed (kts):</label>
-                                <input type="number" class="form-control d-inline-block" id="navlog.originWindSpeedAloftLowerCustom" size="3" v-model="navlog.originWindSpeedAloftLowerCustom" min="0" step="1">
+            <div class="section-container">
+                <h2
+                    class="accordion-header"
+                    id="taxi-data-heading"
+                    data-bs-target="#taxi-data"
+                    aria-controls="taxi-data"
+                    data-bs-toggle="collapse" aria-expanded="true"
+                    >
+                    Taxi Data
+                </h2>
+                <div
+                    id="taxi-data"
+                    class="accordion-collapse collapse show"
+                    aria-labelledby="taxi-data-heading"
+                    >
+                    <div class="accordion-body">
 
-                                <span class="calculated">at {{ originWindDataAloftAltLower }} ft</span>
+                        <p><span class="calculated">Fuel burned during taxi and takeoff: {{ formatFuelBurn(taxiTakeoffFuelUsed) }} gallons</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-container">
+                <h2
+                    class="accordion-header"
+                    id="climb-data-heading"
+                    data-bs-target="#climb-data"
+                    aria-controls="climb-data"
+                    data-bs-toggle="collapse" aria-expanded="true"
+                    >
+                    Climb Data
+                </h2>
+                <div
+                    id="climb-data"
+                    class="accordion-collapse collapse show"
+                    aria-labelledby="climb-data-heading"
+                    >
+                    <div class="accordion-body">
+
+                        <p><span class="calculated">Time to climb to {{ navlog.cruiseAlt }} ft MSL: {{ timeToClimb.toFixed(0) }} minutes</span></p>
+                        <p><span class="calculated">Fuel burned climbing to {{ navlog.cruiseAlt }} ft MSL: {{ formatFuelBurn(climbFuelBurned) }} gallons</span></p>
+                        <p><span class="calculated">KIAS while climbing to {{ navlog.cruiseAlt }} ft MSL: {{ formatAirspeed(climbKIAS) }} kts</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-container">
+                <h2
+                    class="accordion-header"
+                    id="cruise-data-heading"
+                    data-bs-target="#cruise-data"
+                    aria-controls="cruise-data"
+                    data-bs-toggle="collapse" aria-expanded="true"
+                    >
+                    Cruise Data
+                </h2>
+                <div
+                    id="cruise-data"
+                    class="accordion-collapse collapse show"
+                    aria-labelledby="cruise-data-heading"
+                    >
+                    <div class="accordion-body">
+                        <div class="row initial-width gx-4 gy-2 mb-2">
+                            <div>
+                                <label for="navlog.cruiseAlt" class="form-label d-inline-block me-2">Cruise altitude (feet):</label>
+                                <input type="number" class="form-control d-inline-block" id="navlog.cruiseAlt" size="4" v-model="navlog.cruiseAlt" step="1000" min="3500" max="17500">
+                            </div>
+                            <div>
+                                <label for="navlog.cruiseRPM" class="form-label d-inline-block me-2">Cruise RPM:</label>
+                                <input type="number" class="form-control d-inline-block" id="navlog.cruiseRPM" size="4" v-model="navlog.cruiseRPM" step="50" min="1000">
+                            </div>
+
+                            <div>
+                                <label for="navlog.cruiseTrueCourse" class="form-label d-inline-block me-2">True Course (&deg;):</label>
+                                <input type="number" class="form-control d-inline-block" id="navlog.cruiseTrueCourse" size="3" v-model="navlog.cruiseTrueCourse" min="0" max="359" step="1">
+                            </div>
+                        </div>
+
+                        <p>Cruise Pressure Altitude: <span class="calculated">{{ formatPressAlt(cruisePressAlt) }} feet</span></p>
+                        <p>Cruise Wind Correction Angle: <span class="calculated">{{ (windCorrectionAngle > 0 ? "+" : "") + formatDirection(windCorrectionAngle) }}&deg;</span></p>
+                        <p>Cruise True Heading: <span class="calculated">{{ formatDirection(navlog.cruiseTrueCourse + windCorrectionAngle) }}&deg;</span></p>
+                        <template v-if="cruisePerformanceData">
+                            <p>Cruise TAS: <span class="calculated">{{ formatAirspeed(cruisePerformanceData.ktas) }} kts</span></p>
+                            <p>Cruise CAS: <span class="calculated">{{ formatAirspeed(cruiseKCAS) }} kts</span></p>
+                            <p>Cruise % BHP: <span class="calculated">{{ formatPower(cruisePerformanceData.bhp) }}%</span></p>
+                            <p>Cruise fuel burn: <span class="calculated">{{ formatFuelBurn(cruisePerformanceData.gph) }} gph</span></p>
+                            <p>Cruise Ground Speed: <span class="calculated">{{ formatAirspeed(groundSpeed) }} kts at {{ navlog.cruiseAlt }} feet</span></p>
+                        </template>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="section-container">
+                <h2
+                    class="accordion-header"
+                    id="winds-aloft-data-heading"
+                    data-bs-target="#winds-aloft-data"
+                    aria-controls="winds-aloft-data"
+                    data-bs-toggle="collapse" aria-expanded="true"
+                    >
+                    Winds/Temps Data
+                </h2>
+                <div
+                    id="winds-aloft-data"
+                    class="accordion-collapse collapse show"
+                    aria-labelledby="winds-aloft-data-heading"
+                    >
+                    <div class="accordion-body">
+
+                        <div class="mb-3 mt-2">
+                            <button
+                                class="btn btn-light"
+                                id="winds-aloft-help-btn"
+                                data-bs-target="#winds-aloft-help-text"
+                                aria-controls="winds-aloft-help-text"
+                                data-bs-toggle="collapse" aria-expanded="true">
+                                Toggle help
+                            </button>
+                            <div
+                                class="accordion-collapse collapse"
+                                id="winds-aloft-help-text"
+                                aria-labelledby="winds-aloft-help-btn"
+                            >
+                                <div class="info-box">
+                                    <p>In this section, you can enter the upper and lower altitudes (and if desired, custom winds aloft values) that surround your cruise altitude so that the app can interpolate the winds aloft values.</p>
+                                    <p><em>(Example: if your cruise altitude is 4500 feet, and you have winds aloft data for 3000 feet and 6000 feet, you can enter the values for 3000 feet in the "Lower" section and the values for 6000 feet in the "Upper" section. The values for 4500 feet will be automatically interpolated from these surrounding values.)</em></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4>Lower</h4>
+
+                        <div class="my-3">
+                            <label for="navlog.originAloftDataAltLowerCustom" class="form-label d-inline-block me-2">Custom wind/temperature data lower altitude (feet)</label>
+                            <input type="number" class="form-control d-inline-block" id="navlog.originAloftDataAltLowerCustom" size="4" v-model="navlog.originAloftDataAltLowerCustom" step="1000" :disabled="navlog.originTempAloftLowerUseGround && navlog.originWindDataAloftLowerUseGround">
+                        </div>
+
+
+
+                        <!-- Temperature -->
+                        <div>
+                            <label for="navlog.originTempAloftLowerUseGround" class="form-label d-inline-block me-2">Use origin temperature at ground as lower value:</label>
+                            <input type="checkbox" class="form-check-input" id="navlog.originTempAloftLowerUseGround" v-model="navlog.originTempAloftLowerUseGround">
+                        </div>
+
+                        <template v-if="!navlog.originTempAloftLowerUseGround">
+                            <!-- Don't use the temperature data reported from the airport -->
+
+                            <div>
+                                <label for="navlog.originTempAloftLowerUseFAAData" class="form-label d-inline-block me-2">Use origin temperature from FAA Winds Aloft API as lower value:</label>
+                                <input type="checkbox" class="form-check-input" id="navlog.originTempAloftLowerUseFAAData" v-model="navlog.originTempAloftLowerUseFAAData">
+                            </div>
+
+
+                            <template v-if="!navlog.originTempAloftLowerUseFAAData">
+
+                                <!-- Don't use the temperature data acquired from the FAA winds aloft API -->
+                                <div class="row initial-width gx-4 gy-2 my-2">
+                                    <div>
+                                        <label for="navlog.originTempAloftLowerCustom" class="form-label d-inline-block me-2">Origin lower temperature (&deg;C):</label>
+                                        <input type="number" class="form-control d-inline-block me-2" id="navlog.originTempAloftLowerCustom" size="4" v-model="navlog.originTempAloftLowerCustom" step="1">
+
+                                        <span class="calculated">at {{ originTempAloftAltLower }} ft</span>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <template v-else>
+                                <!-- Use the temperature data acquired from the FAA winds aloft API -->
+                                <p class="calculated">Origin lower temperature: {{ formatTemp(originTempAloftLower) }}&deg; at {{ originTempAloftAltLower }} ft</p>
+                            </template>
+                        </template>
+
+                        <template v-else>
+                            <!-- Use the temperature data reported from the airport -->
+                            <p class="calculated">Origin lower temperature: {{ formatTemp(originTempAloftLower) }}&deg;C at {{ originTempAloftAltLower }} ft</p>
+                        </template>
+
+
+
+                        <!-- Wind -->
+                        <div>
+                            <label for="navlog.originWindDataAloftLowerUseGround" class="form-label d-inline-block me-2">Use origin wind data at ground as lower value:</label>
+                            <input type="checkbox" class="form-check-input" id="navlog.originWindDataAloftLowerUseGround" v-model="navlog.originWindDataAloftLowerUseGround">
+                        </div>
+
+                        <template v-if="!navlog.originWindDataAloftLowerUseGround">
+                            <!-- Don't use the wind data reported from the airport -->
+                            <div>
+                                <div>
+                                    <label for="navlog.originWindDataAloftLowerUseFAAData" class="form-label d-inline-block me-2">Use origin wind data from FAA Winds Aloft API as lower value:</label>
+                                    <input type="checkbox" class="form-check-input" id="navlog.originWindDataAloftLowerUseFAAData" v-model="navlog.originWindDataAloftLowerUseFAAData">
+                                </div>
+
+                                <template v-if="!navlog.originWindDataAloftLowerUseFAAData">
+                                    <!-- Don't use the wind data acquired from the FAA winds aloft API -->
+                                    <div class="row initial-width gx-4 gy-2 my-2">
+                                        <label for="navlog.originWindDirAloftLowerCustom" class="form-label d-inline-block me-2">Origin lower wind direction (&deg;):</label>
+                                        <input type="number" class="form-control d-inline-block" id="navlog.originWindDirAloftLowerCustom" size="3" v-model="navlog.originWindDirAloftLowerCustom" min="0" max="359" step="10">
+
+                                        <label for="navlog.originWindSpeedAloftLowerCustom" class="form-label d-inline-block mx-2">Wind speed (kts):</label>
+                                        <input type="number" class="form-control d-inline-block" id="navlog.originWindSpeedAloftLowerCustom" size="3" v-model="navlog.originWindSpeedAloftLowerCustom" min="0" step="1">
+
+                                        <span class="calculated">at {{ originWindDataAloftAltLower }} ft</span>
+                                    </div>
+                                </template>
+
+                                <template v-else>
+                                    <!-- Use the wind data acquired from the FAA winds aloft API -->
+                                    <p class="calculated">Origin lower wind direction: {{ formatDirection(originWindDirAloftLower) }}&deg; at {{ originWindDataAloftAltLower }} ft</p>
+                                    <p class="calculated">Origin lower wind speed: {{ formatDirection(originWindSpeedAloftLower) }} kts at {{ originWindDataAloftAltLower }} ft</p>
+                                </template>
                             </div>
                         </template>
 
                         <template v-else>
-                            <!-- Use the wind data acquired from the FAA winds aloft API -->
+                            <!-- Use the wind data reported from the airport -->
                             <p class="calculated">Origin lower wind direction: {{ formatDirection(originWindDirAloftLower) }}&deg; at {{ originWindDataAloftAltLower }} ft</p>
                             <p class="calculated">Origin lower wind speed: {{ formatDirection(originWindSpeedAloftLower) }} kts at {{ originWindDataAloftAltLower }} ft</p>
                         </template>
-                    </div>
-                </template>
-
-                <template v-else>
-                    <!-- Use the wind data reported from the airport -->
-                    <p class="calculated">Origin lower wind direction: {{ formatDirection(originWindDirAloftLower) }}&deg; at {{ originWindDataAloftAltLower }} ft</p>
-                    <p class="calculated">Origin lower wind speed: {{ formatDirection(originWindSpeedAloftLower) }} kts at {{ originWindDataAloftAltLower }} ft</p>
-                </template>
 
 
 
 
-                <h4>Upper</h4>
+                        <h4>Upper</h4>
 
-                <div class="my-3">
-                    <label for="navlog.originAloftDataAltUpperCustom" class="form-label d-inline-block me-2">Custom wind/temperature data upper altitude (feet)</label>
-                    <input type="number" class="form-control d-inline-block" id="navlog.originAloftDataAltUpperCustom" size="4" v-model="navlog.originAloftDataAltUpperCustom" step="1000">
-                </div>
-
-
-                <div>
-                    <label for="navlog.originAloftDataUpperUseFAAData" class="form-label d-inline-block me-2">Use origin temperature/winds data from FAA Winds Aloft API as upper value:</label>
-                    <input type="checkbox" class="form-check-input" id="navlog.originAloftDataUpperUseFAAData" v-model="navlog.originAloftDataUpperUseFAAData">
-                </div>
-
-
-                <template v-if="!navlog.originAloftDataUpperUseFAAData">
-
-                    <!-- Don't use the temperature data acquired from the FAA winds aloft API -->
-                    <div class="row initial-width gx-4 gy-2 my-2">
-                        <div>
-                            <label for="navlog.originWindDirAloftUpperCustom" class="form-label d-inline-block me-2">Origin upper wind direction (&deg;):</label>
-                            <input type="number" class="form-control d-inline-block" id="navlog.originWindDirAloftUpperCustom" size="3" v-model="navlog.originWindDirAloftUpperCustom" min="0" max="359" step="10">
-
-                            <label for="navlog.originWindSpeedAloftUpperCustom" class="form-label d-inline-block mx-2">Wind speed (kts):</label>
-                            <input type="number" class="form-control d-inline-block" id="navlog.originWindSpeedAloftUpperCustom" size="3" v-model="navlog.originWindSpeedAloftUpperCustom" min="0" step="1">
-
-                            <label for="navlog.originTempAloftUpperCustom" class="form-label d-inline-block me-2">Origin upper temperature (&deg;C):</label>
-                            <input type="number" class="form-control d-inline-block me-2" id="navlog.originTempAloftUpperCustom" size="4" v-model="navlog.originTempAloftUpperCustom" step="1">
-
-                            <span class="calculated">at {{ originAloftDataAltUpper }} ft</span>
+                        <div class="my-3">
+                            <label for="navlog.originAloftDataAltUpperCustom" class="form-label d-inline-block me-2">Custom wind/temperature data upper altitude (feet)</label>
+                            <input type="number" class="form-control d-inline-block" id="navlog.originAloftDataAltUpperCustom" size="4" v-model="navlog.originAloftDataAltUpperCustom" step="1000">
                         </div>
+
+
+                        <div>
+                            <label for="navlog.originAloftDataUpperUseFAAData" class="form-label d-inline-block me-2">Use origin temperature/winds data from FAA Winds Aloft API as upper value:</label>
+                            <input type="checkbox" class="form-check-input" id="navlog.originAloftDataUpperUseFAAData" v-model="navlog.originAloftDataUpperUseFAAData">
+                        </div>
+
+
+                        <template v-if="!navlog.originAloftDataUpperUseFAAData">
+
+                            <!-- Don't use the temperature data acquired from the FAA winds aloft API -->
+                            <div class="row initial-width gx-4 gy-2 my-2">
+                                <div>
+                                    <label for="navlog.originWindDirAloftUpperCustom" class="form-label d-inline-block me-2">Origin upper wind direction (&deg;):</label>
+                                    <input type="number" class="form-control d-inline-block" id="navlog.originWindDirAloftUpperCustom" size="3" v-model="navlog.originWindDirAloftUpperCustom" min="0" max="359" step="10">
+
+                                    <label for="navlog.originWindSpeedAloftUpperCustom" class="form-label d-inline-block mx-2">Wind speed (kts):</label>
+                                    <input type="number" class="form-control d-inline-block" id="navlog.originWindSpeedAloftUpperCustom" size="3" v-model="navlog.originWindSpeedAloftUpperCustom" min="0" step="1">
+
+                                    <label for="navlog.originTempAloftUpperCustom" class="form-label d-inline-block me-2">Origin upper temperature (&deg;C):</label>
+                                    <input type="number" class="form-control d-inline-block me-2" id="navlog.originTempAloftUpperCustom" size="4" v-model="navlog.originTempAloftUpperCustom" step="1">
+
+                                    <span class="calculated">at {{ originAloftDataAltUpper }} ft</span>
+                                </div>
+                            </div>
+                        </template>
+
+                        <template v-else>
+                            <!-- Use the temperature data acquired from the FAA winds aloft API -->
+                            <p class="calculated">Origin upper wind direction: {{ formatDirection(originWindDirAloftUpper) }}&deg;, wind speed: {{ formatAirspeed(originWindSpeedAloftUpper) }} kts, temperature: {{ formatTemp(originTempAloftUpper) }}&deg; at {{ originAloftDataAltUpper }} ft</p>
+                        </template>
+
+                        <p>Cruise Temperature: <span class="calculated">{{ formatTemp(cruiseTemp) }}&deg;C at {{ navlog.cruiseAlt }} feet</span></p>
+                        <p>Cruise Wind Direction: <span class="calculated">{{ formatDirection(cruiseWindDir) }}&deg; at {{ navlog.cruiseAlt }} feet</span></p>
+                        <p>Cruise Wind Speed: <span class="calculated">{{ formatAirspeed(cruiseWindSpeed) }} kts at {{ navlog.cruiseAlt }} feet</span></p>
                     </div>
-                </template>
-
-                <template v-else>
-                    <!-- Use the temperature data acquired from the FAA winds aloft API -->
-                    <p class="calculated">Origin upper wind direction: {{ formatDirection(originWindDirAloftUpper) }}&deg;, wind speed: {{ formatAirspeed(originWindSpeedAloftUpper) }} kts, temperature: {{ formatTemp(originTempAloftUpper) }}&deg; at {{ originAloftDataAltUpper }} ft</p>
-                </template>
-
-                <p>Cruise Temperature: <span class="calculated">{{ formatTemp(cruiseTemp) }}&deg;C at {{ navlog.cruiseAlt }} feet</span></p>
-                <p>Cruise Wind Direction: <span class="calculated">{{ formatDirection(cruiseWindDir) }}&deg; at {{ navlog.cruiseAlt }} feet</span></p>
-                <p>Cruise Wind Speed: <span class="calculated">{{ formatAirspeed(cruiseWindSpeed) }} kts at {{ navlog.cruiseAlt }} feet</span></p>
+                </div>
             </div>
 
-            <hr>
+            
+            <div class="section-container">
+                <h2
+                    class="accordion-header"
+                    id="leg-data-heading"
+                    data-bs-target="#leg-data"
+                    aria-controls="leg-data"
+                    data-bs-toggle="collapse" aria-expanded="true"
+                    >
+                    Leg Data
+                </h2>
+                <div
+                    id="leg-data"
+                    class="accordion-collapse collapse show"
+                    aria-labelledby="leg-data-heading"
+                    >
+                    <div class="accordion-body">
+                        <p>
+                            <label for="navlog.legDistance" class="form-label d-inline-block me-2">Leg distance (nm):</label>
+                            <input type="number" class="form-control d-inline-block" id="navlog.legDistance" size="3" v-model="navlog.legDistance" step="0.5" min="0">
+                        </p>
 
-            <div class="py-3">
-                <h2 class="mb-4">Leg Data</h2>
-                <div class="row initial-width gx-4 gy-2 my-2">
-                    <div>
-                        <label for="navlog.legDistance" class="form-label d-inline-block me-2">Leg distance (nm):</label>
-                        <input type="number" class="form-control d-inline-block" id="navlog.legDistance" size="3" v-model="navlog.legDistance" step="0.5" min="0">
+                        <template v-if="cruisePerformanceData">
+                            <p>Leg cruise time: <span class="calculated">{{ formatTimeMinutes(calculateLegTimeMinutes(navlog.legDistance, groundSpeed)) }} mins (at ground speed of {{ formatAirspeed(groundSpeed) }} kts)</span></p>
+
+                            <p>Leg fuel burn: <span class="calculated">{{ formatFuelBurn(calculateLegTimeHours(navlog.legDistance, groundSpeed) * cruisePerformanceData.gph) }} gallons (at ground speed of {{ formatAirspeed(groundSpeed) }} kts)</span></p>
+                        </template>
                     </div>
                 </div>
-
-                <template v-if="cruisePerformanceData">
-                    <p>Leg cruise time: <span class="calculated">{{ formatTimeMinutes(calculateLegTimeMinutes(navlog.legDistance, groundSpeed)) }} mins (at ground speed of {{ formatAirspeed(groundSpeed) }} kts)</span></p>
-
-                    <p>Leg fuel burn: <span class="calculated">{{ formatFuelBurn(calculateLegTimeHours(navlog.legDistance, groundSpeed) * cruisePerformanceData.gph) }} gallons (at ground speed of {{ formatAirspeed(groundSpeed) }} kts)</span></p>
-                </template>
             </div>
 
             <hr>
@@ -414,8 +580,8 @@
                     <ul>
                         <li><del class="text-faded">Add climb data and allow calculation of climb leg</del></li>
                         <li>Allow creation of multiple legs</li>
-                        <li>Add feedback to show that it's interpolating cruise data</li>
-                        <li>Interpolate cruise performance data</li>
+                        <li><del class="text-faded">Add feedback to show that it's interpolating cruise data</del></li>
+                        <li><del class="text-faded">Interpolate cruise performance data</del></li>
                         <li><del class="text-faded">Pull winds aloft data from external service instead of having user input</del></li>
                         <li>Change UI so user simply inputs cruise altitude, and app automatically interpolates 2 closest winds aloft data, instead of manually choosing upper and lower bounds</li>
                         <li>Pull airport weather data from external service, if user chooses</li>

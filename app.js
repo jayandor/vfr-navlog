@@ -70,15 +70,5 @@ $(document).ready(function () {
 
         createApp(navlogApp(airplaneData, windsAloft)).mount('#app');
 
-
-
-        createApp({
-            data() {
-                return {
-                  count: 0
-                }
-              }
-          }).mount('#app2');
-
     });
 });

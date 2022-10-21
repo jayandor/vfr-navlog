@@ -109,10 +109,10 @@ export let navlogApp = function(airplaneData, windsAloft) {
                         // Use temp data acquired directly from FAA winds aloft API
                         if (!this.originWindsAloft) return 0;
 
-                        let alt = this.chooseClosestKey(this.originTempAloftAltLower, Object.keys(this.originWindsAloft));
+                        let tempAloftAtAlt = this.chooseClosestValue(this.originTempAloftAltLower, this.originWindsAloft);
 
-                        if (this.originWindsAloft[alt]["tempC"] !== null) {
-                            return this.originWindsAloft[alt]["tempC"];
+                        if (tempAloftAtAlt["tempC"] !== null) {
+                            return tempAloftAtAlt["tempC"];
                         } else {
                             // If altitude too low, temp may not be reported in winds aloft; use origin airport temp
                             return this.navlog.originTemp;
@@ -152,9 +152,9 @@ export let navlogApp = function(airplaneData, windsAloft) {
                         // Use wind data acquired directly from FAA winds aloft API
                         if (!this.originWindsAloft) return 0;
 
-                        let alt = this.chooseClosestKey(this.originWindDataAloftAltLower, Object.keys(this.originWindsAloft));
+                        let windDataAtAlt = this.chooseClosestValue(this.originWindDataAloftAltLower, this.originWindsAloft);
 
-                        return this.originWindsAloft[alt]["windDirectionDegrees"];
+                        return windDataAtAlt["windDirectionDegrees"];
                     } else {
                         // Use user-entered wind direction
                         return this.navlog.originWindDirAloftLowerCustom
@@ -170,9 +170,9 @@ export let navlogApp = function(airplaneData, windsAloft) {
                         // Use wind data acquired directly from FAA winds aloft API
                         if (!this.originWindsAloft) return 0;
 
-                        let alt = this.chooseClosestKey(this.originWindDataAloftAltLower, Object.keys(this.originWindsAloft));
+                        let windDataAtAlt = this.chooseClosestValue(this.originWindDataAloftAltLower, this.originWindsAloft);
 
-                        return this.originWindsAloft[alt]["windSpeedKnots"];
+                        return windDataAtAlt["windSpeedKnots"];
                     } else {
                         // Use user-entered wind direction
                         return this.navlog.originWindSpeedAloftLowerCustom
@@ -200,9 +200,9 @@ export let navlogApp = function(airplaneData, windsAloft) {
                     // Use wind data acquired directly from FAA winds aloft API
                     if (!this.originWindsAloft) return 0;
 
-                    let alt = this.chooseClosestKey(this.navlog.originAloftDataAltUpperCustom, Object.keys(this.originWindsAloft));
+                    let windDataAtAlt = this.chooseClosestValue(this.navlog.originAloftDataAltUpperCustom, this.originWindsAloft);
 
-                    return this.originWindsAloft[alt]["windDirectionDegrees"];
+                    return windDataAtAlt["windDirectionDegrees"];
                 } else {
                     // Use user-entered wind direction
                     return this.navlog.originWindDirAloftUpperCustom
@@ -213,9 +213,9 @@ export let navlogApp = function(airplaneData, windsAloft) {
                     // Use wind data acquired directly from FAA winds aloft API
                     if (!this.originWindsAloft) return 0;
 
-                    let alt = this.chooseClosestKey(this.navlog.originAloftDataAltUpperCustom, Object.keys(this.originWindsAloft));
+                    let windDataAtAlt = this.chooseClosestValue(this.navlog.originAloftDataAltUpperCustom, this.originWindsAloft);
 
-                    return this.originWindsAloft[alt]["windSpeedKnots"];
+                    return windDataAtAlt["windSpeedKnots"];
                 } else {
                     // Use user-entered wind direction
                     return this.navlog.originWindSpeedAloftUpperCustom
@@ -226,10 +226,10 @@ export let navlogApp = function(airplaneData, windsAloft) {
                     // Use temp data acquired directly from FAA winds aloft API
                     if (!this.originWindsAloft) return 0;
 
-                    let alt = this.chooseClosestKey(this.navlog.originAloftDataAltUpperCustom, Object.keys(this.originWindsAloft));
+                    let windDataAtAlt = this.chooseClosestValue(this.navlog.originAloftDataAltUpperCustom, this.originWindsAloft);
 
-                    if (this.originWindsAloft[alt]["tempC"] !== null) {
-                        return this.originWindsAloft[alt]["tempC"];
+                    if (windDataAtAlt["tempC"] !== null) {
+                        return windDataAtAlt["tempC"];
                     } else {
                         // If altitude too low, temp may not be reported in winds aloft; use origin airport temp
                         return this.navlog.originTemp;
@@ -343,10 +343,8 @@ export let navlogApp = function(airplaneData, windsAloft) {
             },
             cruisePerformanceData() {
                 if (this.airplaneDataLoaded) {
-                    let press_alts = Object.keys(this.generalCruisePerformanceData);
-                    let press_alt = this.chooseClosestKey(this.cruisePressAlt, press_alts);
-
-                    let temp_performance = this.generalCruisePerformanceData[press_alt];
+                    let alt_lower = this.chooseNextLowestKey(this.cruisePressAlt, Object.keys(this.generalCruisePerformanceData));
+                    let temp_performance_lower = this.generalCruisePerformanceData[alt_lower];
 
                     let temp =
                         this.cruiseTemp < (STANDARD_TEMP - 20) ?
@@ -355,12 +353,44 @@ export let navlogApp = function(airplaneData, windsAloft) {
                                 "above" :
                                 "standard";
 
-                    let rpm_performance = temp_performance[temp];
+                    let rpm_performance = temp_performance_lower[temp];
 
-                    let rpms = Object.keys(rpm_performance);
-                    let rpm = this.chooseClosestKey(this.navlog.cruiseRPM, rpms);
+                    let rpm_lower = this.chooseNextLowestKey(this.navlog.cruiseRPM, Object.keys(rpm_performance));
+                    let rpm_data_lower = rpm_performance[rpm_lower];
+                    let rpm_higher = this.chooseNextHighestKey(this.navlog.cruiseRPM, Object.keys(rpm_performance));
+                    let rpm_data_higher = rpm_performance[rpm_higher];
 
-                    return rpm_performance[rpm];
+                    let interpolated_data_lower = {
+                        bhp: this.interpolate(this.navlog.cruiseRPM, rpm_lower, rpm_higher, rpm_data_lower.bhp, rpm_data_higher.bhp),
+                        ktas: this.interpolate(this.navlog.cruiseRPM, rpm_lower, rpm_higher, rpm_data_lower.ktas, rpm_data_higher.ktas),
+                        gph: this.interpolate(this.navlog.cruiseRPM, rpm_lower, rpm_higher, rpm_data_lower.gph, rpm_data_higher.gph),
+                    };
+
+                    // -----
+
+                    let alt_higher = this.chooseNextHighestKey(this.cruisePressAlt, Object.keys(this.generalCruisePerformanceData));
+                    let temp_performance_higher = this.generalCruisePerformanceData[alt_higher];
+
+                    rpm_performance = temp_performance_higher[temp];
+
+                    rpm_lower = this.chooseNextLowestKey(this.navlog.cruiseRPM, Object.keys(rpm_performance));
+                    rpm_data_lower = rpm_performance[rpm_lower];
+                    rpm_higher = this.chooseNextHighestKey(this.navlog.cruiseRPM, Object.keys(rpm_performance));
+                    rpm_data_higher = rpm_performance[rpm_higher];
+
+                    let interpolated_data_higher = {
+                        bhp: this.interpolate(this.navlog.cruiseRPM, rpm_lower, rpm_higher, rpm_data_lower.bhp, rpm_data_higher.bhp),
+                        ktas: this.interpolate(this.navlog.cruiseRPM, rpm_lower, rpm_higher, rpm_data_lower.ktas, rpm_data_higher.ktas),
+                        gph: this.interpolate(this.navlog.cruiseRPM, rpm_lower, rpm_higher, rpm_data_lower.gph, rpm_data_higher.gph),
+                    };
+
+                    let interpolated_data = {
+                        bhp: this.interpolate(this.cruisePressAlt, alt_lower, alt_higher, interpolated_data_lower.bhp, interpolated_data_higher.bhp),
+                        ktas: this.interpolate(this.cruisePressAlt, alt_lower, alt_higher, interpolated_data_lower.ktas, interpolated_data_higher.ktas),
+                        gph: this.interpolate(this.cruisePressAlt, alt_lower, alt_higher, interpolated_data_lower.gph, interpolated_data_higher.gph),
+                    };
+
+                    return interpolated_data;
                 } else {
                     return null;
                 }
@@ -451,11 +481,87 @@ export let navlogApp = function(airplaneData, windsAloft) {
                 return closest;
             },
 
+            // Return element from array that is either the exact value or the next lowest value compared to the given value (although if none lower exist, use next highest)
+            chooseNextLowestKey(x, vals, skip = true) {
+                x = parseFloat(x);
+
+                let nextLowest = null;
+                let lowestDist = null;
+
+                for (let v of vals) {
+                    let v_float = parseFloat(v);
+
+                    if (v_float == x) return v;
+                    if (v_float > x && skip) continue;
+                    let dist = x - v_float;
+
+                    if (dist < lowestDist || lowestDist === null) {
+                        lowestDist = dist;
+                        nextLowest = v;
+                    }
+                }
+
+                // Check if no values lower than x
+                if (nextLowest === null) {
+                    // If so, return next highest value
+                    return this.chooseNextHighestKey(x, vals, skip = false);
+                }
+
+                return nextLowest;
+            },
+
+            // Return element from array that is either the exact value or the next highest value compared to the given value (although if none higher exist, use next lowest)
+            chooseNextHighestKey(x, vals, skip = true) {
+                x = parseFloat(x);
+
+                let nextHighest = null;
+                let highestDist = null;
+
+                for (let v of vals) {
+                    let v_float = parseFloat(v);
+
+                    if (v_float == x) return v;
+                    if (v_float < x && skip) continue;
+                    let dist = v_float - x;
+
+                    if (dist < highestDist || highestDist === null) {
+                        highestDist = dist;
+                        nextHighest = v;
+                    }
+                }
+
+                // Check if no values higher than x
+                if (nextHighest === null) {
+                    // If so, return next lowest value
+                    return this.chooseNextLowestKey(x, vals, skip = false);
+                }
+
+                return nextHighest;
+            },
+
             // Return value from object whose key is numerically the closest to the given value
             chooseClosestValue(x, obj) {
                 let keys = Object.keys(obj);
 
                 let key = this.chooseClosestKey(x, keys);
+
+                return obj[key];
+            },
+
+            // Return value from object whose key is numerically either exactly or the next lowest to the given value
+            chooseNextLowestValue(x, obj) {
+                let keys = Object.keys(obj);
+
+                let key = this.chooseNextLowestKey(x, keys);
+
+                return obj[key];
+            },
+
+            // Return value from object whose key is numerically either exactly or the next highest to the given value
+            chooseNextHighestValue(x, obj) {
+                let keys = Object.keys(obj);
+
+                let key = this.chooseNextHighestKey(x, keys);
 
                 return obj[key];
             },
