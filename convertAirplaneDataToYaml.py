@@ -117,6 +117,15 @@ for planeName, data in airplaneData.items():
                 addToOutput("""
                 %s: %s""" % (key, val))
 
+    # Taxi performance
+    addToOutput("""
+    taxiPerformance:""")
+    taxi_data = data["taxiPerformance"]
+
+    for key, val in taxi_data.items():
+        addToOutput("""
+        %s: %s""" % (key, val))
+
     print()
 
 with open(outputFilepath, 'w') as f:

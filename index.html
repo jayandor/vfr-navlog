@@ -21,9 +21,26 @@
             width: initial;
         }
 
+        .subheading {
+            font-style: italic;
+            color: #686868;
+        }
+
         .calculated {
             color: #0063fd;
             font-style: italic;
+        }
+
+        .text-faded {
+            color: #686868;
+        }
+
+        .info-box {
+            background: #cbf3ff;
+            padding: 1em 1.5em;
+            color: #007091;
+            margin-top: 1em;
+            margin-bottom: 1em;
         }
 
         .loading-placeholder {
@@ -62,6 +79,10 @@
 
         <div class="container page-container my-4 loading-content">
             <h1 class="mb-3">VFR NavLog Helper</h1>
+
+            <h5 class="subheading">Created by Jordan Williamson</h5>
+
+            <hr>
 
             <div class="py-3">
                 <h2>Airplane Data</h2>
@@ -167,10 +188,15 @@
             <hr>
 
             <div class="py-3">
-                <h2>Climb Data</h2>
-                <div class="row initial-width gx-4 gy-2 my-2">
+                <h2>Taxi Data</h2>
 
-                </div>
+                <p><span class="calculated">Fuel burned during taxi and takeoff: {{ formatFuelBurn(taxiTakeoffFuelUsed) }} gallons</span></p>
+            </div>
+
+            <hr>
+
+            <div class="py-3">
+                <h2>Climb Data</h2>
 
                 <p><span class="calculated">Time to climb to {{ navlog.cruiseAlt }} ft MSL: {{ timeToClimb.toFixed(0) }} minutes</span></p>
                 <p><span class="calculated">Fuel burned climbing to {{ navlog.cruiseAlt }} ft MSL: {{ formatFuelBurn(climbFuelBurned) }} gallons</span></p>
@@ -213,6 +239,11 @@
 
             <div class="py-3">
                 <h2 class="mb-4">Winds/Temps Aloft Data</h2>
+
+                <div class="info-box">
+                    <p>In this section, you can enter the upper and lower altitudes (and if desired, custom winds aloft values) that surround your cruise altitude so that the app can interpolate the winds aloft values.</p>
+                    <p><em>(Example: if your cruise altitude is 4500 feet, and you have winds aloft data for 3000 feet and 6000 feet, you can enter the values for 3000 feet in the "Lower" section and the values for 6000 feet in the "Upper" section. The values for 4500 feet will be automatically interpolated from these surrounding values.)</em></p>
+                </div>
 
                 <h4>Lower</h4>
 
@@ -381,11 +412,11 @@
                 <small>
                     To-do:
                     <ul>
-                        <li>Add climb data and allow calculation of climb leg</li>
+                        <li><del class="text-faded">Add climb data and allow calculation of climb leg</del></li>
                         <li>Allow creation of multiple legs</li>
                         <li>Add feedback to show that it's interpolating cruise data</li>
                         <li>Interpolate cruise performance data</li>
-                        <li><strike>Pull winds aloft data from external service instead of having user input</strike></li>
+                        <li><del class="text-faded">Pull winds aloft data from external service instead of having user input</del></li>
                         <li>Change UI so user simply inputs cruise altitude, and app automatically interpolates 2 closest winds aloft data, instead of manually choosing upper and lower bounds</li>
                         <li>Pull airport weather data from external service, if user chooses</li>
                         <li>Add CAS to IAS code using performance data (already included in YAML), and have it interpolate</li>

@@ -280,6 +280,19 @@ export let navlogApp = function(airplaneData, windsAloft) {
                 return 0;
             },
 
+            taxiPerformanceData() {
+                if (this.airplaneDataLoaded) {
+                    return this.generalAirplaneData["taxiPerformance"];
+                } else {
+                    return null;
+                }
+            },
+            taxiTakeoffFuelUsed() {
+                if (this.taxiPerformanceData)
+                    return this.taxiPerformanceData.taxiTakeoffFuelUsed;
+                return 0;
+            },
+
             cruiseTemp() {
                 return this.interpolate(
                     this.navlog.cruiseAlt,
