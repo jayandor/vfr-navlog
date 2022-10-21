@@ -17,14 +17,15 @@ let defaultNavlogData = {
     originAloftDataAltUpperCustom: 6000,
     // Temps aloft
       // Lower
-    originTempAloftLowerUseGround: true,
+    originTempAloftLowerUseGround: false,
+    originTempAloftLowerUseNOAAData: true,
     originTempAloftLowerCustom: 0,
       // Upper
     originTempAloftUpperCustom: 0,
 
 
-    originWindDataAloftLowerUseGround: true,
-    originWindDataAloftLowerUseFAAData: true,
+    originWindDataAloftLowerUseGround: false,
+    originWindDataAloftLowerUseNOAAData: true,
     // Wind direction aloft
       // Lower
     originWindDirAloftLowerCustom: 0,
@@ -36,6 +37,8 @@ let defaultNavlogData = {
     originWindSpeedAloftLowerCustom: 0,
       // Upper
     originWindSpeedAloftUpperCustom: 0,
+
+    originAloftDataUpperUseNOAAData: true,
 
     destICAO: '',
     destTemp: 15,
@@ -82,8 +85,8 @@ export let navlogApp = function(airplaneData, windsAloft) {
                     // Use temp reported at airport
                     return this.navlog.originElev;
                 } else {
-                    if (this.navlog.originTempAloftLowerUseFAAData) {
-                        // Use temp data acquired directly from FAA winds aloft API
+                    if (this.navlog.originTempAloftLowerUseNOAAData) {
+                        // Use temp data acquired directly from NOAA winds aloft API
                         if (!this.originWindsAloft) return this.navlog.originElev;
 
                         let alt = this.chooseClosestKey(this.navlog.originAloftDataAltLowerCustom, Object.keys(this.originWindsAloft));
@@ -105,8 +108,8 @@ export let navlogApp = function(airplaneData, windsAloft) {
                     // Use temp reported at airport
                     return this.navlog.originTemp;
                 } else {
-                    if (this.navlog.originTempAloftLowerUseFAAData) {
-                        // Use temp data acquired directly from FAA winds aloft API
+                    if (this.navlog.originTempAloftLowerUseNOAAData) {
+                        // Use temp data acquired directly from NOAA winds aloft API
                         if (!this.originWindsAloft) return 0;
 
                         let tempAloftAtAlt = this.chooseClosestValue(this.originTempAloftAltLower, this.originWindsAloft);
@@ -130,8 +133,8 @@ export let navlogApp = function(airplaneData, windsAloft) {
                     // Use wind direction reported at airport
                     return this.navlog.originElev;
                 } else {
-                    if (this.navlog.originWindDataAloftLowerUseFAAData) {
-                        // Use wind data acquired directly from FAA winds aloft API
+                    if (this.navlog.originWindDataAloftLowerUseNOAAData) {
+                        // Use wind data acquired directly from NOAA winds aloft API
                         if (!this.originWindsAloft) return this.navlog.originElev;
 
                         let alt = this.chooseClosestKey(this.navlog.originAloftDataAltLowerCustom, Object.keys(this.originWindsAloft));
@@ -148,8 +151,8 @@ export let navlogApp = function(airplaneData, windsAloft) {
                     // Use wind direction reported at airport
                     return this.navlog.originWindDir;
                 } else {
-                    if (this.navlog.originWindDataAloftLowerUseFAAData) {
-                        // Use wind data acquired directly from FAA winds aloft API
+                    if (this.navlog.originWindDataAloftLowerUseNOAAData) {
+                        // Use wind data acquired directly from NOAA winds aloft API
                         if (!this.originWindsAloft) return 0;
 
                         let windDataAtAlt = this.chooseClosestValue(this.originWindDataAloftAltLower, this.originWindsAloft);
@@ -166,8 +169,8 @@ export let navlogApp = function(airplaneData, windsAloft) {
                     // Use wind direction reported at airport
                     return this.navlog.originWindSpeed;
                 } else {
-                    if (this.navlog.originWindDataAloftLowerUseFAAData) {
-                        // Use wind data acquired directly from FAA winds aloft API
+                    if (this.navlog.originWindDataAloftLowerUseNOAAData) {
+                        // Use wind data acquired directly from NOAA winds aloft API
                         if (!this.originWindsAloft) return 0;
 
                         let windDataAtAlt = this.chooseClosestValue(this.originWindDataAloftAltLower, this.originWindsAloft);
@@ -183,8 +186,8 @@ export let navlogApp = function(airplaneData, windsAloft) {
 
 
             originAloftDataAltUpper() {
-                if (this.navlog.originAloftDataUpperUseFAAData) {
-                    // Use wind data acquired directly from FAA winds aloft API
+                if (this.navlog.originAloftDataUpperUseNOAAData) {
+                    // Use wind data acquired directly from NOAA winds aloft API
                     if (!this.originWindsAloft) return this.navlog.originElev;
 
                     let alt = this.chooseClosestKey(this.navlog.originAloftDataAltUpperCustom, Object.keys(this.originWindsAloft));
@@ -196,8 +199,8 @@ export let navlogApp = function(airplaneData, windsAloft) {
                 }
             },
             originWindDirAloftUpper() {
-                if (this.navlog.originAloftDataUpperUseFAAData) {
-                    // Use wind data acquired directly from FAA winds aloft API
+                if (this.navlog.originAloftDataUpperUseNOAAData) {
+                    // Use wind data acquired directly from NOAA winds aloft API
                     if (!this.originWindsAloft) return 0;
 
                     let windDataAtAlt = this.chooseClosestValue(this.navlog.originAloftDataAltUpperCustom, this.originWindsAloft);
@@ -209,8 +212,8 @@ export let navlogApp = function(airplaneData, windsAloft) {
                 }
             },
             originWindSpeedAloftUpper() {
-                if (this.navlog.originAloftDataUpperUseFAAData) {
-                    // Use wind data acquired directly from FAA winds aloft API
+                if (this.navlog.originAloftDataUpperUseNOAAData) {
+                    // Use wind data acquired directly from NOAA winds aloft API
                     if (!this.originWindsAloft) return 0;
 
                     let windDataAtAlt = this.chooseClosestValue(this.navlog.originAloftDataAltUpperCustom, this.originWindsAloft);
@@ -222,8 +225,8 @@ export let navlogApp = function(airplaneData, windsAloft) {
                 }
             },
             originTempAloftUpper() {
-                if (this.navlog.originAloftDataUpperUseFAAData) {
-                    // Use temp data acquired directly from FAA winds aloft API
+                if (this.navlog.originAloftDataUpperUseNOAAData) {
+                    // Use temp data acquired directly from NOAA winds aloft API
                     if (!this.originWindsAloft) return 0;
 
                     let windDataAtAlt = this.chooseClosestValue(this.navlog.originAloftDataAltUpperCustom, this.originWindsAloft);
