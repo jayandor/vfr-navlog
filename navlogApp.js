@@ -12,6 +12,7 @@ let defaultNavlogData = {
     originWindDir: 0,
     originWindSpeed: 0,
     originElev: 0,
+    originMagVar: 0,
 
     originAloftDataAltLowerCustom: 3000,
     originAloftDataAltUpperCustom: 6000,
@@ -46,6 +47,7 @@ let defaultNavlogData = {
     destWindDir: 0,
     destWindSpeed: 0,
     destElev: 0,
+    destMagVar: 0,
 
     cruiseAlt: 4500,
     cruiseRPM: 2500,
@@ -54,7 +56,7 @@ let defaultNavlogData = {
     legDistance: 0,
 };
 
-export let navlogApp = function(airplaneData, windsAloft) {
+export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
     return {
         data() {
             return {
@@ -70,6 +72,29 @@ export let navlogApp = function(airplaneData, windsAloft) {
             },
             destPressAlt() {
                 return this.convertToPressAlt(this.navlog.destElev, this.navlog.destAltim);
+            },
+
+            originLatLong() {
+                return airportLatLong[this.navlog.originICAO];
+            },
+            destLatLong() {
+                return airportLatLong[this.navlog.destICAO];
+            },
+            tripDistance() {
+                if (!this.originLatLong || !this.destLatLong) {
+                    return 0;
+                }
+                return this.getDistanceFromLatLonInNm(this.originLatLong.lat, this.originLatLong.long, this.destLatLong.lat, this.destLatLong.long)
+            },
+            tripTrueCourse() {
+                if (!this.originLatLong || !this.destLatLong) {
+                    return 0;
+                }
+                const course = this.getCourseFromLatLonInDeg(this.originLatLong.lat, this.originLatLong.long, this.destLatLong.lat, this.destLatLong.long)
+                if (course > 0)
+                    return course;
+                else
+                    return 360 + course;
             },
 
             originWindsAloft() {
@@ -323,6 +348,12 @@ export let navlogApp = function(airplaneData, windsAloft) {
                     this.originWindSpeedAloftUpper
                 )
             },
+            cruiseTrueHeading() {
+                return this.navlog.cruiseTrueCourse + this.windCorrectionAngle;
+            },
+            cruiseMagneticHeading() {
+                return this.cruiseTrueHeading + this.avg(this.navlog.originMagVar, this.navlog.destMagVar);
+            },
             cruisePressAlt() {
                 return this.convertToPressAlt(this.navlog.cruiseAlt, this.avg(this.navlog.originAltim, this.navlog.destAltim));
             },
@@ -403,7 +434,7 @@ export let navlogApp = function(airplaneData, windsAloft) {
             },
             windCorrectionAngle() {
                 if (this.cruisePerformanceData) {
-                    let windAngle = this.cruiseWindDir - this.navlog.cruiseTrueCourse;
+                    let windAngle = this.cruiseWindDir - this.tripTrueCourse;
                     let windAngleRad = windAngle * Math.PI / 180;
                     let correctionAngleRad = Math.asin(this.cruiseWindSpeed * Math.sin(windAngleRad) / this.cruisePerformanceData.ktas);
                     let correctionAngle = correctionAngleRad * 180 / Math.PI;
@@ -415,7 +446,7 @@ export let navlogApp = function(airplaneData, windsAloft) {
             },
             groundSpeed() {
                 if (this.cruisePerformanceData) {
-                    let angle = (this.navlog.cruiseTrueCourse
+                    let angle = (this.tripTrueCourse
                             - this.cruiseWindDir
                             + this.windCorrectionAngle) * Math.PI / 180;
                     return Math.sqrt(
@@ -443,6 +474,8 @@ export let navlogApp = function(airplaneData, windsAloft) {
             this.windsAloft = windsAloft;
 
             this.$el.parentNode.classList.remove("loading");
+
+            this.airportLatLong = airportLatLong;
         },
         methods: {
             resetData() {
@@ -460,6 +493,40 @@ export let navlogApp = function(airplaneData, windsAloft) {
             },
             avg(a, b) {
                 return (a + b) / 2;
+            },
+            deg2rad(deg) {
+                return deg * (Math.PI/180)
+            },
+            rad2deg(rad) {
+                return rad * (180/Math.PI)
+            },
+            getDistanceFromLatLonInNm(lat1, lon1, lat2, lon2) {
+                const R = 6371; // Radius of the earth in km
+                const dLat = this.deg2rad(lat2-lat1);
+                const dLon = this.deg2rad(lon2-lon1);
+                const a = 
+                    Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
+                    Math.sin(dLon/2) * Math.sin(dLon/2); 
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+                const dKM = R * c; // Distance in km
+                const dNM = dKM / 1.852; // Distance in nm
+
+                return dNM;
+            },
+            getCourseFromLatLonInDeg(lat1, long1, lat2, long2) {
+                const deltaLong = this.deg2rad(long2 - long1);
+                const lat1rad = this.deg2rad(lat1);
+                const long1rad = this.deg2rad(long1);
+                const lat2rad = this.deg2rad(lat2);
+                const long2rad = this.deg2rad(long2);
+
+                const X = Math.cos(lat2rad) * Math.sin(deltaLong);
+                const Y = Math.cos(lat1rad) * Math.sin(lat2rad) - Math.sin(lat1rad) * Math.cos(lat2rad) * Math.cos(deltaLong);
+                const theta = Math.atan2(X, Y);
+                const thetaDeg = this.rad2deg(theta);
+
+                return thetaDeg
             },
 
             // Return element from array that is numerically the closest to the given value
@@ -704,6 +771,9 @@ export let navlogApp = function(airplaneData, windsAloft) {
                 return this.calculateLegTimeHours(legDistance, legSpeed) * 60;
             },
 
+            formatDistance(dist) {
+                return parseFloat(dist.toFixed(1));
+            },
             formatPressAlt(press_alt) {
                 return press_alt.toFixed(0);
             },
@@ -721,6 +791,9 @@ export let navlogApp = function(airplaneData, windsAloft) {
             },
             formatDirection(dir) {
                 return dir.toFixed(0);
+            },
+            formatLatOrLong(val) {
+                return val.toFixed(7);
             },
             formatTimeMinutes(minutes) {
                 let partial_minutes = minutes % 1;

@@ -1,12 +1,14 @@
 // import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
-import { createApp } from 'vue'
+import { createApp } from 'vue';
 // import './js-yaml.js';
 const jsyaml = require('js-yaml');
-import { navlogApp } from './navlogApp.js'
+import { navlogApp } from './navlogApp.js';
 
 const airplaneDataUrl = "airplaneData.yml";
 
-const winds = require('@faa-aviation-data-portal/winds-aloft')
+const winds = require('@faa-aviation-data-portal/winds-aloft');
+
+import airportLatLong from './airportLatLong.json' assert {type: 'json'};
 
 function addHours(numOfHours, date = new Date()) {
     return new Date(date.getTime() + numOfHours * 60 * 60 * 1000);
@@ -68,7 +70,7 @@ $(document).ready(function () {
 
         let windsAloft = retrieveWindsAloft();
 
-        createApp(navlogApp(airplaneData, windsAloft)).mount('#app');
+        createApp(navlogApp(airplaneData, windsAloft, airportLatLong)).mount('#app');
 
     });
 });
