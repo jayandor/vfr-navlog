@@ -102,6 +102,41 @@
             margin-bottom: 1rem;
         }
 
+        .leg {
+            padding: 1.9rem 2.5rem;
+            background: #fff;
+            border-radius: 5.4px;
+            border: 1px solid #bccbdb;
+            position: relative;
+        }
+
+        .leg-name-input {
+            margin-bottom: 1rem;
+            font-size: 2em;
+            border-color: #64b9ec;
+            padding: 0.4em 0.4em;
+            text-align: center;
+            color: #7791bb;
+            font-weight: bold;
+            border-style: dashed;
+            text-decoration-line: underline;
+            text-decoration-style: solid;
+            text-decoration-color: currentcolor;
+            text-decoration-thickness: auto;
+            text-decoration-style: dashed;
+        }
+
+        .leg-name-input:focus {
+            color: #587097;
+            text-decoration-style: solid;
+        }
+
+        .leg-number {
+            position: absolute;
+            top: -8px;
+            left: -10px;
+        }
+
     </style>
 
     <link rel="shortcut icon" type="image/jpg" href="favicon.ico"/>
@@ -604,15 +639,59 @@
                     aria-labelledby="leg-data-heading"
                     >
                     <div class="accordion-body">
+
+                        <div class="my-3 leg" v-for="(leg, index) in navlog.legs">
+                            <span class="badge bg-dark leg-number">Leg #{{ index + 1 }}</span>
+                            <input class="form-control leg-name-input" type="text" v-model="leg.label" ref="legNameInput">
+                            <p>
+                                <label :for="'leg-' + index + '.distance'" class="form-label d-inline-block me-2">Leg distance (nm):</label>
+                                <input type="number" class="form-control d-inline-block" :id="'leg-' + index + '.distance'" size="3" v-model="leg.distance" step="0.5" min="0">
+                            </p>
+
+                            <template v-if="cruisePerformanceData">
+                                <p>Leg cruise time: <span class="calculated">{{ formatTimeMinutes(calculateLegTimeMinutes(leg.distance, groundSpeed)) }} mins (at ground speed of {{ formatAirspeed(groundSpeed) }} kts)</span></p>
+
+                                <p>Leg fuel burn: <span class="calculated">{{ formatFuelBurn(calculateLegTimeHours(leg.distance, groundSpeed) * cruisePerformanceData.gph) }} gallons (at {{ formatFuelBurn(cruisePerformanceData.gph) }} gph)</span></p>
+                            </template>
+                            <button class="btn btn-danger btn-sm" @click="deleteLeg(leg.label)">Delete Leg</button>
+                        </div>
+
+                        <button class="btn btn-success" @click="addNewLeg">Add New Leg</button>
+
+                        <div class="my-3">
+                            <p>Total legs distance: <span class="calculated">{{ formatDistance(totalLegsDistance) }} nm</span></p>
+                            <p>Total legs time: <span class="calculated">{{ formatTimeMinutes(totalLegsTime) }} minutes</span></p>
+                            <p>Total legs fuel burn: <span class="calculated">{{ formatFuelBurn(totalLegsFuelBurn) }} gallons</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="section-container">
+                <h2
+                    class="accordion-header"
+                    id="descent-data-heading"
+                    data-bs-target="#descent-data"
+                    aria-controls="descent-data"
+                    data-bs-toggle="collapse" aria-expanded="true"
+                    >
+                    Descent Data
+                </h2>
+                <div
+                    id="descent-data"
+                    class="accordion-collapse collapse show"
+                    aria-labelledby="descent-data-heading"
+                    >
+                    <div class="accordion-body">
                         <p>
-                            <label for="navlog.legDistance" class="form-label d-inline-block me-2">Leg distance (nm):</label>
-                            <input type="number" class="form-control d-inline-block" id="navlog.legDistance" size="3" v-model="navlog.legDistance" step="0.5" min="0">
+                            <label for="navlog.descentRate" class="form-label d-inline-block me-2">Descent rate (feet/min):</label>
+                            <input type="number" class="form-control d-inline-block" id="navlog.descentRate" size="3" v-model="navlog.descentRate" step="100" min="100" max="1000">
                         </p>
 
+                        <p>Descent time: <span class="calculated">{{ formatTimeMinutes(descentTime) }} mins to go from {{ formatPressAlt(navlog.cruiseAlt) }} feet to {{ formatPressAlt(descentEndAlt) }} feet</span></p>
                         <template v-if="cruisePerformanceData">
-                            <p>Leg cruise time: <span class="calculated">{{ formatTimeMinutes(calculateLegTimeMinutes(navlog.legDistance, groundSpeed)) }} mins (at ground speed of {{ formatAirspeed(groundSpeed) }} kts)</span></p>
-
-                            <p>Leg fuel burn: <span class="calculated">{{ formatFuelBurn(calculateLegTimeHours(navlog.legDistance, groundSpeed) * cruisePerformanceData.gph) }} gallons (at ground speed of {{ formatAirspeed(groundSpeed) }} kts)</span></p>
+                            <p>Descent distance: <span class="calculated">{{ formatDistance(descentDistance) }} nm</span></p>
                         </template>
                     </div>
                 </div>

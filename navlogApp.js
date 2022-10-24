@@ -1,5 +1,10 @@
 const STANDARD_TEMP = 15;
 
+let defaultLeg = {
+    distance: 0,
+    label: "",
+}
+
 let defaultNavlogData = {
 
     planeType: "cessna172m",
@@ -53,7 +58,12 @@ let defaultNavlogData = {
     cruiseRPM: 2500,
     cruiseTrueCourse: 0,
 
+    descentRate: 100,
+
     legDistance: 0,
+
+    legs: [
+    ],
 };
 
 export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
@@ -457,7 +467,47 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 } else {
                     return 0;
                 }
-            }
+            },
+
+            descentEndAlt() {
+                return (this.navlog.destElev + 1000);
+            },
+            descentTime() {
+                return (this.navlog.cruiseAlt - this.descentEndAlt) / this.navlog.descentRate;
+            },
+            descentDistance() {
+                return (this.descentTime / 60) * this.groundSpeed;
+            },
+
+            totalLegsDistance() {
+                let total = 0;
+
+                for (let leg of this.navlog.legs) {
+                    total += leg.distance;
+                }
+
+                return total;
+            },
+            totalLegsTime() {
+                let total = 0;
+
+                for (let leg of this.navlog.legs) {
+                    total += this.calculateLegTimeMinutes(leg.distance, this.groundSpeed);
+                }
+
+                return total;
+            },
+            totalLegsFuelBurn() {
+                if (!this.cruisePerformanceData) return 0;
+
+                let total = 0;
+
+                for (let leg of this.navlog.legs) {
+                    total += this.calculateLegTimeHours(leg.distance, this.groundSpeed) * this.cruisePerformanceData.gph;
+                }
+
+                return total;
+            },
         },
         mounted() {
             if (localStorage.getItem('navlog')) {
@@ -800,6 +850,28 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 let seconds = partial_minutes * 60;
 
                 return Math.floor(minutes).toFixed(0) + ":" + seconds.toFixed(0).padStart(2, '0');
+            },
+
+            addNewLeg() {
+                let newLeg = JSON.parse(JSON.stringify(defaultLeg));
+                newLeg.label = "New Leg " + (this.navlog.legs.length + 1);
+                this.navlog.legs.push(newLeg);
+
+                this.$nextTick(() => this.$refs.legNameInput[ this.$refs.legNameInput.length - 1 ].focus());
+            },
+
+            deleteLeg(label) {
+                let index = null;
+                for (const [i, leg] of this.navlog.legs.entries()) {
+                    if (leg.label == label) {
+                        index = i;
+                        break;
+                    }
+                }
+
+                if (index !== null) {
+                    this.navlog.legs.splice(index, 1);
+                }
             },
 
             // convertKTAStoKCAS(ktas) {
