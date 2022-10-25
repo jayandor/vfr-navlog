@@ -64,7 +64,7 @@ let defaultNavlogData = {
     cruiseRPM: 2500,
     cruiseTrueCourse: 0,
 
-    descentRate: 100,
+    descentRate: 500,
 
     legDistance: 0,
 
@@ -81,6 +81,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 windsAloft: {},
                 airplaneDataLoaded: false,
                 originMetar: null,
+                destMetar: null,
             }
         },
         computed: {
@@ -132,8 +133,55 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                     return this.navlog.originCustomElev;
                 }
             },
+
+
+            destTemp() {
+                if (this.navlog.destTempUseMetar) {
+                    if (!this.destMetar) return 0;
+
+                    return this.destMetar.temperature.celsius;
+                } else {
+                    return this.navlog.destCustomTemp;
+                }
+            },
+            destAltim() {
+                if (this.navlog.destAltimUseMetar) {
+                    if (!this.destMetar) return 0;
+
+                    return this.destMetar.barometer.hg;
+                } else {
+                    return this.navlog.destCustomAltim;
+                }
+            },
+            destWindDir() {
+                if (this.navlog.destWindDirUseMetar) {
+                    if (!this.destMetar) return 0;
+
+                    return this.destMetar.wind.degrees;
+                } else {
+                    return this.navlog.destCustomWindDir;
+                }
+            },
+            destWindSpeed() {
+                if (this.navlog.destWindSpeedUseMetar) {
+                    if (!this.destMetar) return 0;
+
+                    return this.destMetar.wind.speed_kts;
+                } else {
+                    return this.navlog.destCustomWindSpeed;
+                }
+            },
+            destElev() {
+                if (this.navlog.destElevUseMetar) {
+                    if (!this.destMetar) return 0;
+
+                    return this.destMetar.elevation.feet;
+                } else {
+                    return this.navlog.destCustomElev;
+                }
+            },
             destPressAlt() {
-                return this.convertToPressAlt(this.navlog.destElev, this.navlog.destAltim);
+                return this.convertToPressAlt(this.destElev, this.destAltim);
             },
 
             originLatLong() {
@@ -417,7 +465,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 return this.cruiseTrueHeading + this.avg(this.navlog.originMagVar, this.navlog.destMagVar);
             },
             cruisePressAlt() {
-                return this.convertToPressAlt(this.navlog.cruiseAlt, this.avg(this.originAltim, this.navlog.destAltim));
+                return this.convertToPressAlt(this.navlog.cruiseAlt, this.avg(this.originAltim, this.destAltim));
             },
 
             airplaneTypes() {
@@ -522,7 +570,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             },
 
             descentEndAlt() {
-                return (this.navlog.destElev + 1000);
+                return (this.destElev + 1000);
             },
             descentTime() {
                 return (this.navlog.cruiseAlt - this.descentEndAlt) / this.navlog.descentRate;
@@ -960,10 +1008,15 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             "navlog.originICAO"(icao) {
                 let self = this;
                 $.getJSON('api/metar/' + icao, function(data) {
-                    console.log(data);
                     self.originMetar = data;
                 });
-            }
+            },
+            "navlog.destICAO"(icao) {
+                let self = this;
+                $.getJSON('api/metar/' + icao, function(data) {
+                    self.destMetar = data;
+                });
+            },
         }
     }
 };
