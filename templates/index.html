@@ -396,69 +396,6 @@
                 </div>
             </div>
 
-            <!-- <div class="section-container">
-                <h2
-                    class="accordion-header"
-                    id="destination-data-heading"
-                    data-bs-target="#destination-data"
-                    aria-controls="destination-data"
-                    data-bs-toggle="collapse" aria-expanded="true"
-                    >
-                    Destination Data
-                </h2>
-                <div
-                    id="destination-data"
-                    class="accordion-collapse collapse show"
-                    aria-labelledby="destination-data-heading"
-                    >
-                    <div class="accordion-body">
-                        <div class="row initial-width gx-4 gy-2 mb-2">
-                            <div>
-                                <label for="navlog.destICAO" class="form-label d-inline-block me-2">Destination ICAO airport code:</label>
-                                <input type="text" class="form-control d-inline-block" id="navlog.destICAO" size="4" minlength="4" maxlength="4" v-model="navlog.destICAO">
-                            </div>
-
-                            <div>
-                                <label for="navlog.destTemp" class="form-label d-inline-block me-2">Destination temp (&deg;C):</label>
-                                <input type="number" class="form-control d-inline-block" id="navlog.destTemp" size="3" v-model="navlog.destTemp">
-                                (<span class="calculated">{{ formatTemp(CtoF(navlog.destTemp)) }}&deg;F</span>)
-                            </div>
-
-                            <div>
-                                <label for="navlog.destAltim" class="form-label d-inline-block me-2">Destination altimeter setting (inHg):</label>
-                                <input type="number" class="form-control d-inline-block" id="navlog.destAltim" size="5" step="0.01" v-model="navlog.destAltim">
-                            </div>
-
-                            <div>
-                                <label for="navlog.destWindDir" class="form-label d-inline-block me-2">Destination wind direction (&deg;):</label>
-                                <input type="number" class="form-control d-inline-block" id="navlog.destWindDir" size="3" v-model="navlog.destWindDir" min="0" max="359" step="10">
-                            </div>
-
-                            <div>
-                                <label for="navlog.destWindSpeed" class="form-label d-inline-block me-2">Destination wind speed (kts):</label>
-                                <input type="number" class="form-control d-inline-block" id="navlog.destWindSpeed" size="4" v-model="navlog.destWindSpeed" step="1">
-                            </div>
-
-                            <div>
-                                <label for="navlog.destElev" class="form-label d-inline-block me-2">Destination field elevation (feet):</label>
-                                <input type="number" class="form-control d-inline-block" id="navlog.destElev" size="4" v-model="navlog.destElev" step="1">
-                            </div>
-
-                            <div>
-                                <label for="navlog.destMagVar" class="form-label d-inline-block me-2">Destination magnetic variation (&deg;):</label>
-                                <input type="number" class="form-control d-inline-block" id="navlog.destMagVar" size="3" v-model="navlog.destMagVar" step="1">
-                            </div>
-                        </div>
-
-                        <p>
-                            Destination Pressure Altitude: <span class="calculated">{{ formatPressAlt(destPressAlt) }} ft MSL</span>
-                        </p>
-
-                        <p><span class="calculated">{{ navlog.destICAO }} Latitude/longitude: {{ destLatLong ? formatLatOrLong(destLatLong.lat) : "" }}, {{ destLatLong ? formatLatOrLong(destLatLong.long) : "" }}</span></p>
-                    </div>
-                </div>
-            </div> -->
-
             <div class="section-container">
                 <h2
                     class="accordion-header"
