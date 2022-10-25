@@ -138,6 +138,27 @@
             left: -10px;
         }
 
+        .drop-zone {
+            border: 3px dashed #c4c4c4;
+            padding: 2rem 1.5rem;
+            margin: 1.9rem 1rem;
+            background: #fff;
+            color: #737373;
+            text-align: center;
+            transition: all 200ms ease-in;
+        }
+
+        .drop-zone * {
+            pointer-events: none;
+        }
+
+        .drop-zone.dragged-over {
+            background: #e4eeff;
+            color: #306da4;
+            border-color: #5d7aa8;
+            border-style: solid;
+        }
+
     </style>
 
     <link rel="shortcut icon" type="image/jpg" href="static/favicon.ico"/>
@@ -222,53 +243,53 @@
 
                             <div class="my-2">
                                 Origin temp (&deg;C):
-                                <span class="ms-3" v-if="navlog.originTempUseMetar">{{ originTemp }}</span>
+                                <span class="calculated" v-if="navlog.originTempUseMetar">{{ originTemp }}</span>
 
                                 <input type="number" v-if="!navlog.originTempUseMetar" class="form-control d-inline-block" id="navlog.originTemp" size="3" v-model="navlog.originCustomTemp" :disabled="navlog.originTempUseMetar">
                                 (<span class="calculated">{{ formatTemp(CtoF(originTemp)) }}&deg;F</span>)
 
+                                <input type="checkbox" class="form-check-input ms-4" id="navlog.originTempUseMetar" v-model="navlog.originTempUseMetar">
                                 <label for="navlog.originTempUseMetar" class="form-label d-inline-block mx-2">Use METAR:</label>
-                                <input type="checkbox" class="form-check-input" id="navlog.originTempUseMetar" v-model="navlog.originTempUseMetar">
                             </div>
 
                             <div class="my-2">
                                 Origin altimeter setting (inHg):
-                                <span class="ms-3" v-if="navlog.originAltimUseMetar">{{ formatAltimeter(originAltim) }}</span>
+                                <span class="calculated" v-if="navlog.originAltimUseMetar">{{ formatAltimeter(originAltim) }}</span>
 
                                 <input type="number" v-if="!navlog.originAltimUseMetar" class="form-control d-inline-block" id="navlog.originAltim"  ize="5" step="0.01" v-model="navlog.originCustomAltim" :disabled="navlog.originAltimUseMetar">
 
+                                <input type="checkbox" class="form-check-input ms-4" id="navlog.originAltimUseMetar" v-model="navlog.originAltimUseMetar">
                                 <label for="navlog.originAltimUseMetar" class="form-label d-inline-block mx-2">Use METAR:</label>
-                                <input type="checkbox" class="form-check-input" id="navlog.originAltimUseMetar" v-model="navlog.originAltimUseMetar">
                             </div>
 
                             <div class="my-2">
                                 Origin wind direction (&deg;):
-                                <span class="ms-3" v-if="navlog.originWindDirUseMetar">{{ formatDirection(originWindDir) }}</span>
+                                <span class="calculated" v-if="navlog.originWindDirUseMetar">{{ formatDirection(originWindDir) }}</span>
 
                                 <input type="number" v-if="!navlog.originWindDirUseMetar" class="form-control d-inline-block" id="navlog.originWindDir" size="3" min="0" max="359" step="10" v-model="navlog.originCustomWindDir" :disabled="navlog.originWindDirUseMetar">
 
+                                <input type="checkbox" class="form-check-input ms-4" id="navlog.originWindDirUseMetar" v-model="navlog.originWindDirUseMetar">
                                 <label for="navlog.originWindDirUseMetar" class="form-label d-inline-block mx-2">Use METAR:</label>
-                                <input type="checkbox" class="form-check-input" id="navlog.originWindDirUseMetar" v-model="navlog.originWindDirUseMetar">
                             </div>
 
                             <div class="my-2">
                                 Origin wind speed (kts):
-                                <span class="ms-3" v-if="navlog.originWindSpeedUseMetar">{{ formatAirspeed(originWindSpeed) }}</span>
+                                <span class="calculated" v-if="navlog.originWindSpeedUseMetar">{{ formatAirspeed(originWindSpeed) }}</span>
 
                                 <input type="number" v-if="!navlog.originWindSpeedUseMetar" class="form-control d-inline-block" id="navlog.originWindSpeed" size="4" step="1" v-model="navlog.originCustomWindSpeed" :disabled="navlog.originWindSpeedUseMetar">
 
+                                <input type="checkbox" class="form-check-input ms-4" id="navlog.originWindSpeedUseMetar" v-model="navlog.originWindSpeedUseMetar">
                                 <label for="navlog.originWindSpeedUseMetar" class="form-label d-inline-block mx-2">Use METAR:</label>
-                                <input type="checkbox" class="form-check-input" id="navlog.originWindSpeedUseMetar" v-model="navlog.originWindSpeedUseMetar">
                             </div>
 
                             <div class="my-2">
                                 Origin field elevation (feet):
-                                <span class="ms-3" v-if="navlog.originElevUseMetar">{{ formatPressAlt(originElev) }}</span>
+                                <span class="calculated" v-if="navlog.originElevUseMetar">{{ formatPressAlt(originElev) }}</span>
 
                                 <input type="number" v-if="!navlog.originElevUseMetar" class="form-control d-inline-block" id="navlog.originElev" size="4" step="1" v-model="navlog.originCustomElev" :disabled="navlog.originElevUseMetar">
 
+                                <input type="checkbox" class="form-check-input ms-4" id="navlog.originElevUseMetar" v-model="navlog.originElevUseMetar">
                                 <label for="navlog.originElevUseMetar" class="form-label d-inline-block mx-2">Use METAR:</label>
-                                <input type="checkbox" class="form-check-input" id="navlog.originElevUseMetar" v-model="navlog.originElevUseMetar">
                             </div>
 
                             <div>
@@ -311,53 +332,53 @@
 
                             <div class="my-2">
                                 Destination temp (&deg;C):
-                                <span class="ms-3" v-if="navlog.destTempUseMetar">{{ destTemp }}</span>
+                                <span class="calculated" v-if="navlog.destTempUseMetar">{{ destTemp }}</span>
 
                                 <input type="number" v-if="!navlog.destTempUseMetar" class="form-control d-inline-block" id="navlog.destTemp" size="3" v-model="navlog.destCustomTemp" :disabled="navlog.destTempUseMetar">
                                 (<span class="calculated">{{ formatTemp(CtoF(destTemp)) }}&deg;F</span>)
 
+                                <input type="checkbox" class="form-check-input ms-4" id="navlog.destTempUseMetar" v-model="navlog.destTempUseMetar">
                                 <label for="navlog.destTempUseMetar" class="form-label d-inline-block mx-2">Use METAR:</label>
-                                <input type="checkbox" class="form-check-input" id="navlog.destTempUseMetar" v-model="navlog.destTempUseMetar">
                             </div>
 
                             <div class="my-2">
                                 Destination altimeter setting (inHg):
-                                <span class="ms-3" v-if="navlog.destAltimUseMetar">{{ formatAltimeter(destAltim) }}</span>
+                                <span class="calculated" v-if="navlog.destAltimUseMetar">{{ formatAltimeter(destAltim) }}</span>
 
                                 <input type="number" v-if="!navlog.destAltimUseMetar" class="form-control d-inline-block" id="navlog.destAltim"  ize="5" step="0.01" v-model="navlog.destCustomAltim" :disabled="navlog.destAltimUseMetar">
 
+                                <input type="checkbox" class="form-check-input ms-4" id="navlog.destAltimUseMetar" v-model="navlog.destAltimUseMetar">
                                 <label for="navlog.destAltimUseMetar" class="form-label d-inline-block mx-2">Use METAR:</label>
-                                <input type="checkbox" class="form-check-input" id="navlog.destAltimUseMetar" v-model="navlog.destAltimUseMetar">
                             </div>
 
                             <div class="my-2">
                                 Destination wind direction (&deg;):
-                                <span class="ms-3" v-if="navlog.destWindDirUseMetar">{{ formatDirection(destWindDir) }}</span>
+                                <span class="calculated" v-if="navlog.destWindDirUseMetar">{{ formatDirection(destWindDir) }}</span>
 
                                 <input type="number" v-if="!navlog.destWindDirUseMetar" class="form-control d-inline-block" id="navlog.destWindDir" size="3" min="0" max="359" step="10" v-model="navlog.destCustomWindDir" :disabled="navlog.destWindDirUseMetar">
 
+                                <input type="checkbox" class="form-check-input ms-4" id="navlog.destWindDirUseMetar" v-model="navlog.destWindDirUseMetar">
                                 <label for="navlog.destWindDirUseMetar" class="form-label d-inline-block mx-2">Use METAR:</label>
-                                <input type="checkbox" class="form-check-input" id="navlog.destWindDirUseMetar" v-model="navlog.destWindDirUseMetar">
                             </div>
 
                             <div class="my-2">
                                 Destination wind speed (kts):
-                                <span class="ms-3" v-if="navlog.destWindSpeedUseMetar">{{ formatAirspeed(destWindSpeed) }}</span>
+                                <span class="calculated" v-if="navlog.destWindSpeedUseMetar">{{ formatAirspeed(destWindSpeed) }}</span>
 
                                 <input type="number" v-if="!navlog.destWindSpeedUseMetar" class="form-control d-inline-block" id="navlog.destWindSpeed" size="4" step="1" v-model="navlog.destCustomWindSpeed" :disabled="navlog.destWindSpeedUseMetar">
 
+                                <input type="checkbox" class="form-check-input ms-4" id="navlog.destWindSpeedUseMetar" v-model="navlog.destWindSpeedUseMetar">
                                 <label for="navlog.destWindSpeedUseMetar" class="form-label d-inline-block mx-2">Use METAR:</label>
-                                <input type="checkbox" class="form-check-input" id="navlog.destWindSpeedUseMetar" v-model="navlog.destWindSpeedUseMetar">
                             </div>
 
                             <div class="my-2">
                                 Destination field elevation (feet):
-                                <span class="ms-3" v-if="navlog.destElevUseMetar">{{ formatPressAlt(destElev) }}</span>
+                                <span class="calculated" v-if="navlog.destElevUseMetar">{{ formatPressAlt(destElev) }}</span>
 
                                 <input type="number" v-if="!navlog.destElevUseMetar" class="form-control d-inline-block" id="navlog.destElev" size="4" step="1" v-model="navlog.destCustomElev" :disabled="navlog.destElevUseMetar">
 
+                                <input type="checkbox" class="form-check-input ms-4" id="navlog.destElevUseMetar" v-model="navlog.destElevUseMetar">
                                 <label for="navlog.destElevUseMetar" class="form-label d-inline-block mx-2">Use METAR:</label>
-                                <input type="checkbox" class="form-check-input" id="navlog.destElevUseMetar" v-model="navlog.destElevUseMetar">
                             </div>
 
                             <div>
@@ -507,6 +528,7 @@
                         <p><span class="calculated">Time to climb to {{ navlog.cruiseAlt }} ft MSL: {{ timeToClimb.toFixed(0) }} minutes</span></p>
                         <p><span class="calculated">Fuel burned climbing to {{ navlog.cruiseAlt }} ft MSL: {{ formatFuelBurn(climbFuelBurned) }} gallons</span></p>
                         <p><span class="calculated">KIAS while climbing to {{ navlog.cruiseAlt }} ft MSL: {{ formatAirspeed(climbKIAS) }} kts</span></p>
+                        <p><span class="calculated">KCAS while climbing to {{ navlog.cruiseAlt }} ft MSL: {{ formatAirspeed(climbKCAS) }} kts</span></p>
                     </div>
                 </div>
             </div>
@@ -551,6 +573,7 @@
                         <template v-if="cruisePerformanceData">
                             <p>Cruise TAS: <span class="calculated">{{ formatAirspeed(cruisePerformanceData.ktas) }} kts</span></p>
                             <p>Cruise CAS: <span class="calculated">{{ formatAirspeed(cruiseKCAS) }} kts</span></p>
+                            <p>Cruise IAS: <span class="calculated">{{ formatAirspeed(cruiseKIAS) }} kts</span></p>
                             <p>Cruise % BHP: <span class="calculated">{{ formatPower(cruisePerformanceData.bhp) }}%</span></p>
                             <p>Cruise fuel burn: <span class="calculated">{{ formatFuelBurn(cruisePerformanceData.gph) }} gph</span></p>
                             <p>Cruise Ground Speed: <span class="calculated">{{ formatAirspeed(groundSpeed) }} kts at {{ navlog.cruiseAlt }} feet</span></p>
@@ -813,8 +836,17 @@
 
             <hr>
 
-            <div>
-                <button @click="resetData" class="btn btn-danger">Reset values</button>
+            <p>
+                <button @click="resetData" class="btn btn-danger me-2">Reset values</button>
+            </p>
+
+            <p>
+                <button @click="downloadData" class="btn btn-info me-2">Download NavLog Custom Values</button>
+                <span class="text-primary"><em>(only downloads values entered by user; does not include automatically calculated or retrieved data, like METARs)</em></span>
+            </p>
+
+            <div class="drop-zone" @drop="fileDropped($event)" @dragover="fileDragStart($event)" @dragenter="fileDragStart($event)" @dragleave="fileDragEnd($event)" @dragend="fileDragEnd($event)">
+                Drag a downloaded NavLog Custom Values file here to replace the current values with the values in that file
             </div>
 
             <hr>
@@ -824,15 +856,16 @@
                     To-do:
                     <ul>
                         <li><del class="text-faded">Add climb data and allow calculation of climb leg</del></li>
-                        <li>Allow creation of multiple legs</li>
+                        <li><del class="text-faded">Allow creation of multiple legs</del></li>
                         <li><del class="text-faded">Add feedback to show that it's interpolating cruise data</del></li>
                         <li><del class="text-faded">Interpolate cruise performance data between pressure altitude and RPM data points</del></li>
+                        <li><del class="text-faded">Pull winds aloft data from external service instead of having user input</del></li>
+                        <li><del class="text-faded">Pull airport weather data from external service, if user chooses</del></li>
+                        <li><del class="text-faded">Add CAS to IAS code using performance data (already included in YAML)</del>, and have it interpolate</li>
                         <li>Interpolate cruise performance data between temperature data points</li>
                         <li>Interpolate climb performance data between pressure altitude data points</li>
-                        <li><del class="text-faded">Pull winds aloft data from external service instead of having user input</del></li>
                         <li>Change UI so user simply inputs cruise altitude, and app automatically interpolates 2 closest winds aloft data, instead of manually choosing upper and lower bounds</li>
-                        <li>Pull airport weather data from external service, if user chooses</li>
-                        <li>Add CAS to IAS code using performance data (already included in YAML), and have it interpolate</li>
+                        <li>Add CAS to TAS code</li>
                         <li>Organize code better</li>
                         <li>Improve interface</li>
                         <li>Add CG calculations</li>
@@ -844,6 +877,7 @@
 
     </div>
 
+  <script src="static/fileDragDrop.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
     <script src="static/_bundle.js"></script>
     <!-- <script type="module" src="app.js" defer></script> -->

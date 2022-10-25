@@ -417,6 +417,9 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                     return this.climbPerformanceData.climbSpeedKias;
                 return 0;
             },
+            climbKCAS() {
+                return this.convertKIAStoKCAS(this.climbKIAS);
+            },
 
             taxiPerformanceData() {
                 if (this.airplaneDataLoaded) {
@@ -483,7 +486,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 return this.generalAirplaneData["cruisePerformance"];
             },
             generalAirspeedCalibrationData() {
-                return this.generalAirplaneData["cruisePerformance"];
+                return this.generalAirplaneData["airspeedCalibration"];
             },
             cruisePerformanceData() {
                 if (this.airplaneDataLoaded) {
@@ -541,6 +544,9 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             },
             cruiseKCAS() {
                 return this.convertKTAStoKCAS(this.cruisePerformanceData.ktas, this.navlog.cruiseAlt, this.cruiseTemp);
+            },
+            cruiseKIAS() {
+                return this.convertKCAStoKIAS(this.cruiseKCAS);
             },
             windCorrectionAngle() {
                 if (this.cruisePerformanceData) {
@@ -977,6 +983,96 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 }
             },
 
+            download(filename, text) {
+                var element = document.createElement('a');
+                element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+                element.setAttribute('download', filename);
+
+                element.style.display = 'none';
+                document.body.appendChild(element);
+
+                element.click();
+
+                document.body.removeChild(element);
+            },
+
+            downloadData() {
+                let filename = `${this.navlog.originICAO}-to-${this.navlog.destICAO}-navlog.json`;
+                this.download(filename, JSON.stringify(this.navlog));
+            },
+
+            fileDropped(event) {
+                event.preventDefault();
+
+                if (event.dataTransfer.files.length) {
+                    let file = event.dataTransfer.files[0];
+
+                    let self = this;
+
+                    file.text()
+                    .then(function (data) {
+                        let json_data;
+
+                        try {
+                            json_data = JSON.parse(data);
+                        } catch (e) {
+                            if (e instanceof SyntaxError) {
+                                console.log("Dropped file was not a valid JSON file");
+                                return;
+                            } else {
+                                throw e;
+                            }
+                        }
+
+                        self.navlog = json_data;
+                    });
+                }
+
+                this.fileDragEnd(event);
+            },
+
+            fileDragStart(event) {
+                event.preventDefault();
+                event.target.classList.add("dragged-over");
+            },
+
+            fileDragEnd(event) {
+                event.preventDefault();
+                event.target.classList.remove("dragged-over");
+            },
+
+            invertKeyValues(obj, floats = false){
+                var retobj = {};
+                for(var key in obj){
+                    let val = floats ? parseFloat(key) : key;
+                    retobj[obj[key]] = val;
+                }
+                return retobj;
+            },
+
+            convertKCAStoKIAS(kcas) {
+                if (this.airplaneDataLoaded) {
+                    const flaps = 0;
+                    let IAStoCAS = this.generalAirspeedCalibrationData[flaps];
+                    let CAStoIAS = this.invertKeyValues(IAStoCAS, true);
+                    let closest_kias = this.chooseClosestValue(kcas, CAStoIAS);
+                    return closest_kias;
+                } else {
+                    return 0;
+                }
+            },
+
+            convertKIAStoKCAS(kias) {
+                if (this.airplaneDataLoaded) {
+                    const flaps = 0;
+                    let IAStoCAS = this.generalAirspeedCalibrationData[flaps];
+                    let closest_kcas = this.chooseClosestValue(kias, IAStoCAS);
+                    return closest_kcas;
+                } else {
+                    return 0;
+                }
+            },
+
             // convertKTAStoKCAS(ktas) {
             //     if (this.airplaneDataLoaded) {
             //         const flaps = 0;
@@ -1006,12 +1102,18 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 deep: true,
             },
             "navlog.originICAO"(icao) {
+                let icao_regex = /^\w{4}$/;
+                if (!icao.match(icao_regex)) return;
+
                 let self = this;
                 $.getJSON('api/metar/' + icao, function(data) {
                     self.originMetar = data;
                 });
             },
             "navlog.destICAO"(icao) {
+                let icao_regex = /^\w{4}$/;
+                if (!icao.match(icao_regex)) return;
+
                 let self = this;
                 $.getJSON('api/metar/' + icao, function(data) {
                     self.destMetar = data;
