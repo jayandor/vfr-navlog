@@ -4,7 +4,7 @@ module.exports = {
   entry: './app.js',
   output: {
     path: path.resolve(__dirname),
-    filename: '_bundle.js'
+    filename: 'static/_bundle.js'
   },
   resolve: {
     alias: {

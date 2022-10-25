@@ -4,7 +4,7 @@ import { createApp } from 'vue';
 const jsyaml = require('js-yaml');
 import { navlogApp } from './navlogApp.js';
 
-const airplaneDataUrl = "airplaneData.yml";
+const airplaneDataUrl = "static/airplaneData.yml";
 
 const winds = require('@faa-aviation-data-portal/winds-aloft');
 

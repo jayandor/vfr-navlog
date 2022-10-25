@@ -12,12 +12,18 @@ let defaultNavlogData = {
     weight: 2300,
 
     originICAO: '',
-    originTemp: 15,
-    originAltim: 29.92,
-    originWindDir: 0,
-    originWindSpeed: 0,
-    originElev: 0,
+    originCustomTemp: 15,
+    originCustomAltim: 29.92,
+    originCustomWindDir: 0,
+    originCustomWindSpeed: 0,
+    originCustomElev: 0,
     originMagVar: 0,
+
+    originTempUseMetar: true,
+    originAltimUseMetar: true,
+    originWindDirUseMetar: true,
+    originWindSpeedUseMetar: true,
+    originElevUseMetar: true,
 
     originAloftDataAltLowerCustom: 3000,
     originAloftDataAltUpperCustom: 6000,
@@ -74,11 +80,57 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 airplaneData: {},
                 windsAloft: {},
                 airplaneDataLoaded: false,
+                originMetar: null,
             }
         },
         computed: {
             originPressAlt() {
-                return this.convertToPressAlt(this.navlog.originElev, this.navlog.originAltim);
+                return this.convertToPressAlt(this.originElev, this.originAltim);
+            },
+            originTemp() {
+                if (this.navlog.originTempUseMetar) {
+                    if (!this.originMetar) return 0;
+
+                    return this.originMetar.temperature.celsius;
+                } else {
+                    return this.navlog.originCustomTemp;
+                }
+            },
+            originAltim() {
+                if (this.navlog.originAltimUseMetar) {
+                    if (!this.originMetar) return 0;
+
+                    return this.originMetar.barometer.hg;
+                } else {
+                    return this.navlog.originCustomAltim;
+                }
+            },
+            originWindDir() {
+                if (this.navlog.originWindDirUseMetar) {
+                    if (!this.originMetar) return 0;
+
+                    return this.originMetar.wind.degrees;
+                } else {
+                    return this.navlog.originCustomWindDir;
+                }
+            },
+            originWindSpeed() {
+                if (this.navlog.originWindSpeedUseMetar) {
+                    if (!this.originMetar) return 0;
+
+                    return this.originMetar.wind.speed_kts;
+                } else {
+                    return this.navlog.originCustomWindSpeed;
+                }
+            },
+            originElev() {
+                if (this.navlog.originElevUseMetar) {
+                    if (!this.originMetar) return 0;
+
+                    return this.originMetar.elevation.feet;
+                } else {
+                    return this.navlog.originCustomElev;
+                }
             },
             destPressAlt() {
                 return this.convertToPressAlt(this.navlog.destElev, this.navlog.destAltim);
@@ -115,14 +167,14 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             },
 
             originTempAloftAltLower() {
-                // return this.navlog.originTempAloftLowerUseGround ? this.navlog.originElev : this.navlog.originAloftDataAltLowerCustom;
+                // return this.navlog.originTempAloftLowerUseGround ? this.originElev : this.navlog.originAloftDataAltLowerCustom;
                 if (this.navlog.originTempAloftLowerUseGround) {
                     // Use temp reported at airport
-                    return this.navlog.originElev;
+                    return this.originElev;
                 } else {
                     if (this.navlog.originTempAloftLowerUseNOAAData) {
                         // Use temp data acquired directly from NOAA winds aloft API
-                        if (!this.originWindsAloft) return this.navlog.originElev;
+                        if (!this.originWindsAloft) return this.originElev;
 
                         let alt = this.chooseClosestKey(this.navlog.originAloftDataAltLowerCustom, Object.keys(this.originWindsAloft));
 
@@ -130,7 +182,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                             return alt;
                         } else {
                             // If altitude too low, temp may not be reported in winds aloft; use origin airport temp
-                            return this.navlog.originElev;
+                            return this.originElev;
                         }
                     } else {
                         // Use user-entered temp direction
@@ -141,7 +193,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             originTempAloftLower() {
                 if (this.navlog.originTempAloftLowerUseGround) {
                     // Use temp reported at airport
-                    return this.navlog.originTemp;
+                    return this.originTemp;
                 } else {
                     if (this.navlog.originTempAloftLowerUseNOAAData) {
                         // Use temp data acquired directly from NOAA winds aloft API
@@ -153,7 +205,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                             return tempAloftAtAlt["tempC"];
                         } else {
                             // If altitude too low, temp may not be reported in winds aloft; use origin airport temp
-                            return this.navlog.originTemp;
+                            return this.originTemp;
                         }
                     } else {
                         // Use user-entered temp direction
@@ -163,14 +215,14 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             },
 
             originWindDataAloftAltLower() {
-                // return this.navlog.originWindDataAloftLowerUseGround ? this.navlog.originElev : this.navlog.originAloftDataAltLowerCustom;
+                // return this.navlog.originWindDataAloftLowerUseGround ? this.originElev : this.navlog.originAloftDataAltLowerCustom;
                 if (this.navlog.originWindDataAloftLowerUseGround) {
                     // Use wind direction reported at airport
-                    return this.navlog.originElev;
+                    return this.originElev;
                 } else {
                     if (this.navlog.originWindDataAloftLowerUseNOAAData) {
                         // Use wind data acquired directly from NOAA winds aloft API
-                        if (!this.originWindsAloft) return this.navlog.originElev;
+                        if (!this.originWindsAloft) return this.originElev;
 
                         let alt = this.chooseClosestKey(this.navlog.originAloftDataAltLowerCustom, Object.keys(this.originWindsAloft));
 
@@ -184,7 +236,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             originWindDirAloftLower() {
                 if (this.navlog.originWindDataAloftLowerUseGround) {
                     // Use wind direction reported at airport
-                    return this.navlog.originWindDir;
+                    return this.originWindDir;
                 } else {
                     if (this.navlog.originWindDataAloftLowerUseNOAAData) {
                         // Use wind data acquired directly from NOAA winds aloft API
@@ -202,7 +254,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             originWindSpeedAloftLower() {
                 if (this.navlog.originWindDataAloftLowerUseGround) {
                     // Use wind direction reported at airport
-                    return this.navlog.originWindSpeed;
+                    return this.originWindSpeed;
                 } else {
                     if (this.navlog.originWindDataAloftLowerUseNOAAData) {
                         // Use wind data acquired directly from NOAA winds aloft API
@@ -223,7 +275,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             originAloftDataAltUpper() {
                 if (this.navlog.originAloftDataUpperUseNOAAData) {
                     // Use wind data acquired directly from NOAA winds aloft API
-                    if (!this.originWindsAloft) return this.navlog.originElev;
+                    if (!this.originWindsAloft) return this.originElev;
 
                     let alt = this.chooseClosestKey(this.navlog.originAloftDataAltUpperCustom, Object.keys(this.originWindsAloft));
 
@@ -270,7 +322,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                         return windDataAtAlt["tempC"];
                     } else {
                         // If altitude too low, temp may not be reported in winds aloft; use origin airport temp
-                        return this.navlog.originTemp;
+                        return this.originTemp;
                     }
                 } else {
                     // Use user-entered temp direction
@@ -298,7 +350,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             },
             timeToClimb() {
                 if (this.climbPerformanceData) {
-                    let temp_factor = (1 + (0.1 * (this.navlog.originTemp - STANDARD_TEMP) / 10));
+                    let temp_factor = (1 + (0.1 * (this.originTemp - STANDARD_TEMP) / 10));
                     let diff = this.climbPerformanceData.time * temp_factor - this.originClimbPerformanceData.time * temp_factor;
                     return Math.max(diff, 0);
                 }
@@ -306,7 +358,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             },
             climbFuelBurned() {
                 if (this.climbPerformanceData) {
-                    let temp_factor = (1 + (0.1 * (this.navlog.originTemp - STANDARD_TEMP) / 10));
+                    let temp_factor = (1 + (0.1 * (this.originTemp - STANDARD_TEMP) / 10));
                     let diff = this.climbPerformanceData.fuelUsedGallons * temp_factor - this.originClimbPerformanceData.fuelUsedGallons * temp_factor;
                     return Math.max(diff, 0);
                 }
@@ -365,7 +417,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 return this.cruiseTrueHeading + this.avg(this.navlog.originMagVar, this.navlog.destMagVar);
             },
             cruisePressAlt() {
-                return this.convertToPressAlt(this.navlog.cruiseAlt, this.avg(this.navlog.originAltim, this.navlog.destAltim));
+                return this.convertToPressAlt(this.navlog.cruiseAlt, this.avg(this.originAltim, this.navlog.destAltim));
             },
 
             airplaneTypes() {
@@ -821,6 +873,9 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 return this.calculateLegTimeHours(legDistance, legSpeed) * 60;
             },
 
+            formatAltimeter(altim) {
+                return altim.toFixed(2);
+            },
             formatDistance(dist) {
                 return parseFloat(dist.toFixed(1));
             },
@@ -901,6 +956,13 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                     localStorage.navlog = JSON.stringify(newData);
                 },
                 deep: true,
+            },
+            "navlog.originICAO"(icao) {
+                let self = this;
+                $.getJSON('api/metar/' + icao, function(data) {
+                    console.log(data);
+                    self.originMetar = data;
+                });
             }
         }
     }
