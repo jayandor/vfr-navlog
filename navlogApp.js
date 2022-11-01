@@ -423,6 +423,9 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             climbKTAS() {
                 return this.convertKCAStoKTAS(this.climbKCAS, this.navlog.cruiseAlt, this.cruiseTemp);
             },
+            climbDistance() {
+                return (this.timeToClimb / 60) * this.climbGroundSpeed;
+            },
 
             taxiPerformanceData() {
                 if (this.airplaneDataLoaded) {
@@ -465,7 +468,13 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 )
             },
             cruiseTrueHeading() {
-                return this.tripTrueCourse + this.windCorrectionAngle;
+                return this.tripTrueCourse + this.cruiseWindCorrectionAngle;
+            },
+            climbTrueHeading() {
+                return this.tripTrueCourse + this.climbWindCorrectionAngle;
+            },
+            climbMagneticHeading() {
+                return this.climbTrueHeading + this.navlog.originMagVar;
             },
             cruiseMagneticHeading() {
                 return this.cruiseTrueHeading + this.avg(this.navlog.originMagVar, this.navlog.destMagVar);
@@ -551,28 +560,26 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             cruiseKIAS() {
                 return this.convertKCAStoKIAS(this.cruiseKCAS);
             },
-            windCorrectionAngle() {
+            climbWindCorrectionAngle() {
+                return this.calculateWindCorrectionAngle(this.climbKTAS, this.tripTrueCourse, this.originWindDir, this.originWindSpeed);
+            },
+            cruiseWindCorrectionAngle() {
                 if (this.cruisePerformanceData) {
-                    let windAngle = this.cruiseWindDir - this.tripTrueCourse;
-                    let windAngleRad = windAngle * Math.PI / 180;
-                    let correctionAngleRad = Math.asin(this.cruiseWindSpeed * Math.sin(windAngleRad) / this.cruisePerformanceData.ktas);
-                    let correctionAngle = correctionAngleRad * 180 / Math.PI;
-
-                    return correctionAngle;
+                    return this.calculateWindCorrectionAngle(this.cruisePerformanceData.ktas, this.tripTrueCourse, this.cruiseWindDir, this.cruiseWindSpeed);
                 } else {
                     return 0;
                 }
             },
-            groundSpeed() {
+            cruiseGroundSpeed() {
                 if (this.cruisePerformanceData) {
-                    let angle = (this.tripTrueCourse
-                            - this.cruiseWindDir
-                            + this.windCorrectionAngle) * Math.PI / 180;
-                    return Math.sqrt(
-                        Math.pow(this.cruisePerformanceData.ktas, 2)
-                        + Math.pow(this.cruiseWindSpeed, 2)
-                        - (2 * this.cruisePerformanceData.ktas * this.cruiseWindSpeed * Math.cos(angle))
-                    );
+                    return this.calculateGroundSpeed(this.cruisePerformanceData.ktas, this.cruiseTrueHeading, this.cruiseWindDir, this.cruiseWindSpeed);
+                } else {
+                    return 0;
+                }
+            },
+            climbGroundSpeed() {
+                if (this.cruisePerformanceData) {
+                    return this.calculateGroundSpeed(this.climbKTAS, this.cruiseTrueHeading, this.cruiseWindDir, this.cruiseWindSpeed);
                 } else {
                     return 0;
                 }
@@ -585,7 +592,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 return (this.navlog.cruiseAlt - this.descentEndAlt) / this.navlog.descentRate;
             },
             descentDistance() {
-                return (this.descentTime / 60) * this.groundSpeed;
+                return (this.descentTime / 60) * this.cruiseGroundSpeed;
             },
 
             totalLegsDistance() {
@@ -601,7 +608,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 let total = 0;
 
                 for (let leg of this.navlog.legs) {
-                    total += this.calculateLegTimeMinutes(leg.distance, this.groundSpeed);
+                    total += this.calculateLegTimeMinutes(leg.distance, this.cruiseGroundSpeed);
                 }
 
                 return total;
@@ -612,7 +619,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 let total = 0;
 
                 for (let leg of this.navlog.legs) {
-                    total += this.calculateLegTimeHours(leg.distance, this.groundSpeed) * this.cruisePerformanceData.gph;
+                    total += this.calculateLegTimeHours(leg.distance, this.cruiseGroundSpeed) * this.cruisePerformanceData.gph;
                 }
 
                 return total;
@@ -1038,6 +1045,22 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 return ktas;
 
             },
+            calculateWindCorrectionAngle(ktas, trueCourse, windDir, windSpeed) {
+                let windAngle = windDir - trueCourse;
+                let windAngleRad = windAngle * Math.PI / 180;
+                let correctionAngleRad = Math.asin(windSpeed * Math.sin(windAngleRad) / ktas);
+                let correctionAngle = correctionAngleRad * 180 / Math.PI;
+
+                return correctionAngle;
+            },
+            calculateGroundSpeed(ktas, trueHeading, windDir, windSpeed) {
+                let angle = (trueHeading - windDir) * Math.PI / 180;
+                return Math.sqrt(
+                    Math.pow(ktas, 2)
+                    + Math.pow(windSpeed, 2)
+                    - (2 * ktas * windSpeed * Math.cos(angle))
+                );
+            },
 
             convertToPressAlt(true_altitude, altimeter) {
                 return true_altitude + (altimeter - 29.92) * -1000;
@@ -1237,6 +1260,8 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 let self = this;
                 $.getJSON('api/metar/' + icao, function(data) {
                     self.originMetar = data;
+                })
+                .always(function() {
                     self.$el.parentNode.classList.remove("loading");
                 });
             },
@@ -1247,8 +1272,10 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 this.$el.parentNode.classList.add("loading");
                 let self = this;
                 $.getJSON('api/metar/' + icao, function(data) {
-                    self.$el.parentNode.classList.remove("loading");
                     self.destMetar = data;
+                })
+                .always(function() {
+                    self.$el.parentNode.classList.remove("loading");
                 });
             },
         }

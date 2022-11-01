@@ -467,6 +467,11 @@
                         <p><span class="calculated">KIAS while climbing to {{ navlog.cruiseAlt }} ft MSL: {{ formatAirspeed(climbKIAS) }} kts</span></p>
                         <p><span class="calculated">KCAS while climbing to {{ navlog.cruiseAlt }} ft MSL: {{ formatAirspeed(climbKCAS) }} kts</span></p>
                         <p><span class="calculated">KTAS while climbing to {{ navlog.cruiseAlt }} ft MSL: {{ formatAirspeed(climbKTAS) }} kts</span></p>
+                        <p><span class="calculated">Climb Wind Correction Angle: {{ (climbWindCorrectionAngle > 0 ? "+" : "") + formatDirection(climbWindCorrectionAngle) }}&deg;</span></p>
+                        <p><span class="calculated">Climb True Heading: {{ formatDirection(climbTrueHeading) }}&deg;</span></p>
+                        <p><span class="calculated">Climb Magnetic Heading: {{ formatDirection(climbMagneticHeading) }}&deg;</span></p>
+                        <p><span class="calculated">Climb Ground Speed: {{ formatAirspeed(climbGroundSpeed) }} kts</span></p>
+                        <p><span class="calculated">Climb Distance: {{ formatDistance(climbDistance) }} nm</span></p>
                     </div>
                 </div>
             </div>
@@ -505,7 +510,7 @@
 
                         <p>Cruise True Course: <span class="calculated">{{ formatDirection(tripTrueCourse) }}&deg;</span></p>
                         <p>Cruise Pressure Altitude: <span class="calculated">{{ formatPressAlt(cruisePressAlt) }} feet</span></p>
-                        <p>Cruise Wind Correction Angle: <span class="calculated">{{ (windCorrectionAngle > 0 ? "+" : "") + formatDirection(windCorrectionAngle) }}&deg;</span></p>
+                        <p>Cruise Wind Correction Angle: <span class="calculated">{{ (cruiseWindCorrectionAngle > 0 ? "+" : "") + formatDirection(cruiseWindCorrectionAngle) }}&deg;</span></p>
                         <p>Cruise True Heading: <span class="calculated">{{ formatDirection(cruiseTrueHeading) }}&deg;</span></p>
                         <p>Cruise Magnetic Heading: <span class="calculated">{{ formatDirection(cruiseMagneticHeading) }}&deg;</span></p>
                         <template v-if="cruisePerformanceData">
@@ -514,7 +519,7 @@
                             <p>Cruise IAS: <span class="calculated">{{ formatAirspeed(cruiseKIAS) }} kts</span></p>
                             <p>Cruise % BHP: <span class="calculated">{{ formatPower(cruisePerformanceData.bhp) }}%</span></p>
                             <p>Cruise fuel burn: <span class="calculated">{{ formatFuelBurn(cruisePerformanceData.gph) }} gph</span></p>
-                            <p>Cruise Ground Speed: <span class="calculated">{{ formatAirspeed(groundSpeed) }} kts at {{ navlog.cruiseAlt }} feet</span></p>
+                            <p>Cruise Ground Speed: <span class="calculated">{{ formatAirspeed(cruiseGroundSpeed) }} kts at {{ navlog.cruiseAlt }} feet</span></p>
                         </template>
                     </div>
 
@@ -724,9 +729,9 @@
                             </p>
 
                             <template v-if="cruisePerformanceData">
-                                <p>Leg cruise time: <span class="calculated">{{ formatTimeMinutes(calculateLegTimeMinutes(leg.distance, groundSpeed)) }} mins (at ground speed of {{ formatAirspeed(groundSpeed) }} kts)</span></p>
+                                <p>Leg cruise time: <span class="calculated">{{ formatTimeMinutes(calculateLegTimeMinutes(leg.distance, cruiseGroundSpeed)) }} mins (at ground speed of {{ formatAirspeed(cruiseGroundSpeed) }} kts)</span></p>
 
-                                <p>Leg fuel burn: <span class="calculated">{{ formatFuelBurn(calculateLegTimeHours(leg.distance, groundSpeed) * cruisePerformanceData.gph) }} gallons (at {{ formatFuelBurn(cruisePerformanceData.gph) }} gph)</span></p>
+                                <p>Leg fuel burn: <span class="calculated">{{ formatFuelBurn(calculateLegTimeHours(leg.distance, cruiseGroundSpeed) * cruisePerformanceData.gph) }} gallons (at {{ formatFuelBurn(cruisePerformanceData.gph) }} gph)</span></p>
                             </template>
                             <button class="btn btn-danger btn-sm" @click="deleteLeg(leg.label)">Delete Leg</button>
                         </div>

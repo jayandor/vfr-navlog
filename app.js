@@ -14,7 +14,7 @@ function addHours(numOfHours, date = new Date()) {
     return new Date(date.getTime() + numOfHours * 60 * 60 * 1000);
 }
 
-function retrieveWindsAloft() {
+async function retrieveWindsAloft() {
 
     let existingData = JSON.parse(localStorage.getItem("windsAloft"));
 
@@ -24,22 +24,22 @@ function retrieveWindsAloft() {
         if (expiration > new Date()) {
             // Data hasn't expired
             console.log(`Using previously acquired winds aloft data (issuance time: ${existingData["data"]["issuanceTime"]})`);
-            return existingData["data"];
+            return await existingData["data"];
         }
 
     }
     // Data doesn't exist or has expired
     console.log("Updating winds aloft data from FAA API...");
 
-    winds.FD1({
+    let promise = winds.FD1({
         location: 'US1',
-        issuanceTimeFrom: addHours(-6),
+        issuanceTimeFrom: addHours(-12),
     })
     .then(result => {
         console.log("Received winds aloft data")
         let data = result[0];
         let issuance = data["issuanceTime"]
-        let expiration = addHours(6, new Date(issuance));
+        let expiration = addHours(12, new Date(issuance));
 
         let storeData = {
             expiration: expiration,
@@ -50,6 +50,8 @@ function retrieveWindsAloft() {
 
         return data;
     });
+
+    return promise;
 }
 
 
@@ -68,9 +70,11 @@ $(document).ready(function () {
 
         // console.log(airplaneData);
 
-        let windsAloft = retrieveWindsAloft();
+        retrieveWindsAloft()
+        .then(function(windsAloft) {
+            createApp(navlogApp(airplaneData, windsAloft, airportLatLong)).mount('#app');
+        });
 
-        createApp(navlogApp(airplaneData, windsAloft, airportLatLong)).mount('#app');
 
     });
 });
