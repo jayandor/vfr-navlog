@@ -110,7 +110,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 if (this.navlog.originWindDirUseMetar) {
                     if (!this.originMetar) return 0;
 
-                    return this.originMetar.wind.degrees;
+                    return this.originMetar.wind ? this.originMetar.wind.degrees : 0;
                 } else {
                     return this.navlog.originCustomWindDir;
                 }
@@ -119,7 +119,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 if (this.navlog.originWindSpeedUseMetar) {
                     if (!this.originMetar) return 0;
 
-                    return this.originMetar.wind.speed_kts;
+                    return this.originMetar.wind ? this.originMetar.wind.speed_kts : 0;
                 } else {
                     return this.navlog.originCustomWindSpeed;
                 }
@@ -157,7 +157,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 if (this.navlog.destWindDirUseMetar) {
                     if (!this.destMetar) return 0;
 
-                    return this.destMetar.wind.degrees;
+                    return this.destMetar.wind ? this.destMetar.wind.degrees : 0;
                 } else {
                     return this.navlog.destCustomWindDir;
                 }
@@ -166,7 +166,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 if (this.navlog.destWindSpeedUseMetar) {
                     if (!this.destMetar) return 0;
 
-                    return this.destMetar.wind.speed_kts;
+                    return this.destMetar.wind ? this.destMetar.wind.speed_kts : 0;
                 } else {
                     return this.navlog.destCustomWindSpeed;
                 }
@@ -419,6 +419,9 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             },
             climbKCAS() {
                 return this.convertKIAStoKCAS(this.climbKIAS);
+            },
+            climbKTAS() {
+                return this.convertKCAStoKTAS(this.climbKCAS, this.navlog.cruiseAlt, this.cruiseTemp);
             },
 
             taxiPerformanceData() {
@@ -915,6 +918,127 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 return outputCAS;
             },
 
+            convertKCAStoKTAS(kcas, altitude, temp) {
+                const a0 = 340.29;
+                const P0 = 101325;
+                const velFactor = 0.514444444;
+                const gamma = 1.4;
+                const R = 287.053;
+
+                const gMR = 34.163194736310366;
+
+                const unitFactor = 1.94384;
+
+                const altSI = altitude * 0.3048;
+
+                const pSL = 101325;
+
+                const altitudeArray = [
+                    0,
+                    11000,
+                    20000,
+                    32000,
+                    47000,
+                    51000,
+                    71000,
+                    84852
+                ];
+
+                const presRelsArray = [
+                    1,
+                    2.23361105092158e-1,
+                    5.403295010784876e-2,
+                    8.566678359291667e-3,
+                    1.0945601337771144e-3,
+                    6.606353132858367e-4,
+                    3.904683373343926e-5,
+                    3.6850095235747942e-6
+                ];
+
+                const tempsArray = [
+                    288.15,
+                    216.65,
+                    216.65,
+                    228.65,
+                    270.65,
+                    270.65,
+                    214.65,
+                    186.946
+                ];
+
+                const tempGradArray = [
+                    -6.5,
+                    0,
+                    1,
+                    2.8,
+                    0,
+                    -2.8,
+                    -2,
+                    0
+                ];
+
+                // -----------------------
+
+                // Choose index of altitude thats the next lowest value under altSI
+                let i = 0;
+                while (altSI > altitudeArray[i+1]) {
+                  i = i + 1;
+                }
+
+                const alts = altitudeArray[i];
+                const presRels = presRelsArray[i];
+                const temps = tempsArray[i];
+                const tempGrad = tempGradArray[i] / 1000;
+
+                const deltaAlt = altSI - alts; 
+                const stdTemp = temps + (deltaAlt * tempGrad); // this is the standard temperature at STP
+
+                const tempRaw = (temp + 273.15) - stdTemp;
+                const tempSI = stdTemp + tempRaw;
+
+                const sonicSI = Math.sqrt(gamma * R * tempSI);
+
+                let relPres;
+                if (Math.abs(tempGrad) < 1e-10) {
+                    relPres = presRels * Math.exp(-1 * gMR * deltaAlt / (1000 * temps));
+                }
+                else {
+                    relPres = presRels * Math.pow(temps / stdTemp, gMR / (tempGrad * 1000));
+                }
+
+                const pressureSI = pSL * relPres;
+
+                // --------
+
+                const cas = kcas / unitFactor;
+
+                const qc = P0 * (
+                    Math.pow(
+                        (
+                            1 + 0.2 * Math.pow(cas / a0, 2)
+                        ),
+                        3.5
+                    )
+                    - 1
+                )
+
+                const mach = Math.pow(
+                    5 * (
+                        Math.pow(
+                            ((qc / pressureSI) + 1),
+                            (2 / 7)
+                        ) - 1
+                    ),
+                0.5);
+
+                const tas = mach * sonicSI;
+
+                const ktas = tas / velFactor;
+
+                return ktas;
+
+            },
+
             convertToPressAlt(true_altitude, altimeter) {
                 return true_altitude + (altimeter - 29.92) * -1000;
             },
@@ -981,6 +1105,10 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 if (index !== null) {
                     this.navlog.legs.splice(index, 1);
                 }
+            },
+
+            deleteAllLegs() {
+                this.navlog.legs = [];
             },
 
             download(filename, text) {
@@ -1105,17 +1233,21 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 let icao_regex = /^\w{4}$/;
                 if (!icao.match(icao_regex)) return;
 
+                this.$el.parentNode.classList.add("loading");
                 let self = this;
                 $.getJSON('api/metar/' + icao, function(data) {
                     self.originMetar = data;
+                    self.$el.parentNode.classList.remove("loading");
                 });
             },
             "navlog.destICAO"(icao) {
                 let icao_regex = /^\w{4}$/;
                 if (!icao.match(icao_regex)) return;
 
+                this.$el.parentNode.classList.add("loading");
                 let self = this;
                 $.getJSON('api/metar/' + icao, function(data) {
+                    self.$el.parentNode.classList.remove("loading");
                     self.destMetar = data;
                 });
             },

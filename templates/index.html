@@ -466,6 +466,7 @@
                         <p><span class="calculated">Fuel burned climbing to {{ navlog.cruiseAlt }} ft MSL: {{ formatFuelBurn(climbFuelBurned) }} gallons</span></p>
                         <p><span class="calculated">KIAS while climbing to {{ navlog.cruiseAlt }} ft MSL: {{ formatAirspeed(climbKIAS) }} kts</span></p>
                         <p><span class="calculated">KCAS while climbing to {{ navlog.cruiseAlt }} ft MSL: {{ formatAirspeed(climbKCAS) }} kts</span></p>
+                        <p><span class="calculated">KTAS while climbing to {{ navlog.cruiseAlt }} ft MSL: {{ formatAirspeed(climbKTAS) }} kts</span></p>
                     </div>
                 </div>
             </div>
@@ -730,7 +731,8 @@
                             <button class="btn btn-danger btn-sm" @click="deleteLeg(leg.label)">Delete Leg</button>
                         </div>
 
-                        <button class="btn btn-success" @click="addNewLeg">Add New Leg</button>
+                        <button class="btn btn-success mx-2" @click="addNewLeg">Add New Leg</button>
+                        <button class="btn btn-danger mx-2" @click="deleteAllLegs">Delete All Legs</button>
 
                         <div class="my-3">
                             <p>Total legs distance: <span class="calculated">{{ formatDistance(totalLegsDistance) }} nm</span></p>
@@ -799,10 +801,10 @@
                         <li><del class="text-faded">Pull winds aloft data from external service instead of having user input</del></li>
                         <li><del class="text-faded">Pull airport weather data from external service, if user chooses</del></li>
                         <li><del class="text-faded">Add CAS to IAS code using performance data (already included in YAML)</del>, and have it interpolate</li>
+                        <li><del class="text-faded">Add CAS to TAS code</del></li>
                         <li>Interpolate cruise performance data between temperature data points</li>
                         <li>Interpolate climb performance data between pressure altitude data points</li>
                         <li>Change UI so user simply inputs cruise altitude, and app automatically interpolates 2 closest winds aloft data, instead of manually choosing upper and lower bounds</li>
-                        <li>Add CAS to TAS code</li>
                         <li>Organize code better</li>
                         <li>Improve interface</li>
                         <li>Add CG calculations</li>
