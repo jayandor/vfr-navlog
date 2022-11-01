@@ -462,7 +462,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 )
             },
             cruiseTrueHeading() {
-                return this.navlog.cruiseTrueCourse + this.windCorrectionAngle;
+                return this.tripTrueCourse + this.windCorrectionAngle;
             },
             cruiseMagneticHeading() {
                 return this.cruiseTrueHeading + this.avg(this.navlog.originMagVar, this.navlog.destMagVar);
