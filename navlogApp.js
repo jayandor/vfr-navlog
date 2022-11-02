@@ -473,23 +473,23 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                     this.originTempAloftUpper
                 )
             },
-            cruiseWindDir() {
-                return this.interpolate(
+            cruiseInterpWindData() {
+                // Returns an array [wind direction, wind speed]
+                return this.angleLengthInterpolate(
                     this.navlog.cruiseAlt,
                     this.originWindDataAloftAltLower,
                     this.originAloftDataAltUpper,
                     this.originWindDirAloftLower,
-                    this.originWindDirAloftUpper
-                )
-            },
-            cruiseWindSpeed() {
-                return this.interpolate(
-                    this.navlog.cruiseAlt,
-                    this.originWindDataAloftAltLower,
-                    this.originAloftDataAltUpper,
                     this.originWindSpeedAloftLower,
+                    this.originWindDirAloftUpper,
                     this.originWindSpeedAloftUpper
                 )
+            },
+            cruiseWindDir() {
+                return this.cruiseInterpWindData[0];
+            },
+            cruiseWindSpeed() {
+                return this.cruiseInterpWindData[1];
             },
             cruiseTrueHeading() {
                 return this.tripTrueCourse + this.cruiseWindCorrectionAngle;
@@ -623,7 +623,18 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 let total = 0;
 
                 for (let leg of this.navlog.legs) {
-                    total += leg.distance;
+                    let leg_distance;
+                    switch (leg.label) {
+                        case "TOC":
+                                leg_distance = this.climbDistance;
+                                break;
+                        case "TOD":
+                                leg_distance = this.descentDistance;
+                                break;
+                        default:
+                                leg_distance = leg.distance;
+                    }
+                    total += leg_distance;
                 }
 
                 return total;
@@ -632,7 +643,20 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 let total = 0;
 
                 for (let leg of this.navlog.legs) {
-                    total += this.calculateLegTimeMinutes(leg.distance, this.cruiseGroundSpeed);
+                    let leg_distance;
+                    let leg_speed = this.cruiseGroundSpeed;
+                    switch (leg.label) {
+                        case "TOC":
+                                leg_distance = this.climbDistance;
+                                leg_speed = this.climbGroundSpeed;
+                                break;
+                        case "TOD":
+                                leg_distance = this.descentDistance;
+                                break;
+                        default:
+                                leg_distance = leg.distance;
+                    }
+                    total += this.calculateLegTimeMinutes(leg_distance, leg_speed);
                 }
 
                 return total;
@@ -643,7 +667,20 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 let total = 0;
 
                 for (let leg of this.navlog.legs) {
-                    total += this.calculateLegTimeHours(leg.distance, this.cruiseGroundSpeed) * this.cruisePerformanceData.gph;
+                    let leg_distance;
+                    let leg_speed = this.cruiseGroundSpeed;
+                    switch (leg.label) {
+                        case "TOC":
+                                leg_distance = this.climbDistance;
+                                leg_speed = this.climbGroundSpeed;
+                                break;
+                        case "TOD":
+                                leg_distance = this.descentDistance;
+                                break;
+                        default:
+                                leg_distance = leg.distance;
+                    }
+                     total += this.calculateLegTimeHours(leg_distance, leg_speed) * this.cruisePerformanceData.gph;
                 }
 
                 return total;
@@ -676,6 +713,32 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 if (upper == lower) return lower_val;
                 let i = (val - lower) / (upper - lower);
                 return this.lerp(lower_val, upper_val, i);
+            },
+
+            angleLengthInterpolate(val, lower, upper, lower_val_angle, lower_val_length, upper_val_angle, upper_val_length) {
+                let lower_val_x = Math.cos(this.deg2rad(lower_val_angle)) * lower_val_length;
+                let lower_val_y = Math.sin(this.deg2rad(lower_val_angle)) * lower_val_length;
+
+                let upper_val_x = Math.cos(this.deg2rad(upper_val_angle)) * upper_val_length;
+                let upper_val_y = Math.sin(this.deg2rad(upper_val_angle)) * upper_val_length;
+
+                let interp_vec = this.vectorInterpolate(val, lower, upper, lower_val_x, lower_val_y, upper_val_x, upper_val_y);
+
+                // Map output of atan2 to 0-360 degrees
+                let interp_angle = (Math.atan2(interp_vec[1], interp_vec[0]) * 180 / Math.PI + 360) % 360;
+                let interp_length = Math.sqrt(interp_vec[0] * interp_vec[0] + interp_vec[1] * interp_vec[1]);
+
+                return [interp_angle, interp_length];
+            },
+
+            vectorInterpolate(val, lower, upper, lower_val_x, lower_val_y, upper_val_x, upper_val_y) {
+                if (upper == lower) return [lower_val_x, lower_val_y];
+
+                let i = (val - lower) / (upper - lower);
+                return [
+                    this.lerp(lower_val_x, upper_val_x, i),
+                    this.lerp(lower_val_y, upper_val_y, i)
+                ];
             },
 
             lerp(a, b, i) {

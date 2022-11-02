@@ -725,13 +725,63 @@
                             <input class="form-control leg-name-input" type="text" v-model="leg.label" ref="legNameInput">
                             <p>
                                 <label :for="'leg-' + index + '.distance'" class="form-label d-inline-block me-2">Leg distance (nm):</label>
-                                <input type="number" class="form-control d-inline-block" :id="'leg-' + index + '.distance'" size="3" v-model="leg.distance" step="0.5" min="0">
+
+                                <input v-if="leg.label == 'TOD'"
+                                    class="form-control d-inline-block" :id="'leg-' + index + '.distance'" size="3" :value="formatDistance(descentDistance)" readonly>
+                                <input v-else-if="leg.label == 'TOC'"
+                                    class="form-control d-inline-block" :id="'leg-' + index + '.distance'" size="3" :value="formatDistance(climbDistance)" readonly>
+                                <input v-else type="number"
+                                    class="form-control d-inline-block" :id="'leg-' + index + '.distance'" size="3" v-model="leg.distance" step="0.5" min="0">
+
                             </p>
 
                             <template v-if="cruisePerformanceData">
-                                <p>Leg cruise time: <span class="calculated">{{ formatTimeMinutes(calculateLegTimeMinutes(leg.distance, cruiseGroundSpeed)) }} mins (at ground speed of {{ formatAirspeed(cruiseGroundSpeed) }} kts)</span></p>
+                                <p>Leg cruise time:
+                                    <span
+                                        v-if="leg.label == 'TOD'"
+                                        class="calculated"
+                                    >
+                                        {{ formatTimeMinutes(calculateLegTimeMinutes(descentDistance, cruiseGroundSpeed)) }} mins (at ground speed of {{ formatAirspeed(cruiseGroundSpeed) }} kts)
+                                    </span>
 
-                                <p>Leg fuel burn: <span class="calculated">{{ formatFuelBurn(calculateLegTimeHours(leg.distance, cruiseGroundSpeed) * cruisePerformanceData.gph) }} gallons (at {{ formatFuelBurn(cruisePerformanceData.gph) }} gph)</span></p>
+                                    <span
+                                        v-else-if="leg.label == 'TOC'"
+                                        class="calculated"
+                                    >
+                                        {{ formatTimeMinutes(calculateLegTimeMinutes(climbDistance, climbGroundSpeed)) }} mins (at ground speed of {{ formatAirspeed(climbGroundSpeed) }} kts)
+                                    </span>
+
+                                    <span
+                                        v-else
+                                        class="calculated"
+                                    >
+                                        {{ formatTimeMinutes(calculateLegTimeMinutes(leg.distance, cruiseGroundSpeed)) }} mins (at ground speed of {{ formatAirspeed(cruiseGroundSpeed) }} kts)
+                                    </span>
+                                </p>
+
+                                <p>Leg fuel burn:
+                                    <span
+                                        v-if="leg.label == 'TOD'"
+                                        class="calculated"
+                                    >
+                                        {{ formatFuelBurn(calculateLegTimeHours(descentDistance, cruiseGroundSpeed) * cruisePerformanceData.gph) }} gallons (at {{ formatFuelBurn(cruisePerformanceData.gph) }} gph)
+                                    </span>
+
+                                    <span
+                                        v-else-if="leg.label == 'TOC'"
+                                        class="calculated"
+                                    >
+                                        {{ formatFuelBurn(calculateLegTimeHours(climbDistance, climbGroundSpeed) * cruisePerformanceData.gph) }} gallons (at {{ formatFuelBurn(cruisePerformanceData.gph) }} gph)
+                                    </span>
+
+                                    <span
+                                        v-else
+                                        class="calculated"
+                                    >
+                                        {{ formatFuelBurn(calculateLegTimeHours(leg.distance, cruiseGroundSpeed) * cruisePerformanceData.gph) }} gallons (at {{ formatFuelBurn(cruisePerformanceData.gph) }} gph)
+                                    </span>
+                                </p>
+
                             </template>
                             <button class="btn btn-danger btn-sm" @click="deleteLeg(leg.label)">Delete Leg</button>
                         </div>
@@ -741,7 +791,7 @@
                         <button class="btn btn-warning mx-2" @click="reverseLegs">Reverse Leg Order</button>
 
                         <div class="my-3">
-                            <p>Total legs distance: <span class="calculated">{{ formatDistance(totalLegsDistance) }} nm</span></p>
+                            <p>Total legs distance: <span class="calculated">{{ formatDistance(totalLegsDistance) }} nm</span> (compared to straight-line trip distance: <span class="calculated">{{ formatDistance(tripDistance) }} nm)</span></p>
                             <p>Total legs time: <span class="calculated">{{ formatTimeMinutes(totalLegsTime) }} minutes</span></p>
                             <p>Total legs fuel burn: <span class="calculated">{{ formatFuelBurn(totalLegsFuelBurn) }} gallons</span></p>
                         </div>
