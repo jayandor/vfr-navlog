@@ -292,7 +292,13 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
 
                         let windDataAtAlt = this.chooseClosestValue(this.originWindDataAloftAltLower, this.originWindsAloft);
 
-                        return windDataAtAlt["windDirectionDegrees"];
+                        let windDir = windDataAtAlt["windDirectionDegrees"];
+
+                        if (windDir == 'light and variable') {
+                            windDir = 0;
+                        }
+
+                        return windDir;
                     } else {
                         // Use user-entered wind direction
                         return this.navlog.originWindDirAloftLowerCustom
@@ -310,7 +316,13 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
 
                         let windDataAtAlt = this.chooseClosestValue(this.originWindDataAloftAltLower, this.originWindsAloft);
 
-                        return windDataAtAlt["windSpeedKnots"];
+                        let windSpeed = windDataAtAlt["windSpeedKnots"];
+
+                        if (windSpeed == 'light and variable') {
+                            windSpeed = 0;
+                        }
+
+                        return windSpeed;
                     } else {
                         // Use user-entered wind direction
                         return this.navlog.originWindSpeedAloftLowerCustom
@@ -340,7 +352,13 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
 
                     let windDataAtAlt = this.chooseClosestValue(this.navlog.originAloftDataAltUpperCustom, this.originWindsAloft);
 
-                    return windDataAtAlt["windDirectionDegrees"];
+                    let windDir = windDataAtAlt["windDirectionDegrees"];
+
+                    if (windDir == 'light and variable') {
+                        windDir = 0;
+                    }
+
+                    return windDir;
                 } else {
                     // Use user-entered wind direction
                     return this.navlog.originWindDirAloftUpperCustom
@@ -353,7 +371,13 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
 
                     let windDataAtAlt = this.chooseClosestValue(this.navlog.originAloftDataAltUpperCustom, this.originWindsAloft);
 
-                    return windDataAtAlt["windSpeedKnots"];
+                    let windSpeed = windDataAtAlt["windSpeedKnots"];
+
+                    if (windSpeed == 'light and variable') {
+                        windSpeed = 0;
+                    }
+
+                    return windSpeed;
                 } else {
                     // Use user-entered wind direction
                     return this.navlog.originWindSpeedAloftUpperCustom
