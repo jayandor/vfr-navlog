@@ -7,6 +7,8 @@ let defaultLeg = {
 
 const VFRMAP_HOST = "http://vfrmap.com";
 const SKYVECTOR_HOST = "//skyvector.com";
+const SKYVECTOR_WORLD_VFR = 301;
+const SKYVECTOR_ST_LOUIS_VFR = 21;
 
 let defaultNavlogData = {
 
@@ -85,6 +87,9 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 airplaneDataLoaded: false,
                 originMetar: null,
                 destMetar: null,
+                originSkyvectorMapScale: 3,
+                destSkyvectorMapScale: 3,
+                midpointSkyvectorMapScale: 3,
             }
         },
         computed: {
@@ -702,7 +707,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 let long = this.originLatLong.long;
                 const el_id = this.$refs.originSkyvectorMap.id;
 
-                return this.generateSkyVectorMapUrl(lat, long, el_id);
+                return this.generateSkyVectorMapUrl(lat, long, el_id, this.originSkyvectorMapScale);
             },
             destSkyVectorMapLinkUrl() {
                 if (!this.destLatLong) return "";
@@ -711,7 +716,23 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 let long = this.destLatLong.long;
                 const el_id = this.$refs.destSkyvectorMap.id;
 
-                return this.generateSkyVectorMapUrl(lat, long, el_id);
+                return this.generateSkyVectorMapUrl(lat, long, el_id, this.destSkyvectorMapScale);
+            },
+            midpointSkyVectorMapLinkUrl() {
+                if (!this.originLatLong || !this.destLatLong) return "";
+
+                let lat1 = this.originLatLong.lat;
+                let long1 = this.originLatLong.long;
+
+                let lat2 = this.destLatLong.lat;
+                let long2 = this.destLatLong.long;
+
+                let lat = this.avg(lat1, lat2);
+                let long = this.avg(long1, long2);
+
+                const el_id = this.$refs.midpointSkyvectorMap.id;
+
+                return this.generateSkyVectorMapUrl(lat, long, el_id, this.midpointSkyvectorMapScale);
             },
         },
         mounted() {
@@ -766,6 +787,22 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
 
                 skyvectorScriptEl.setAttribute("src",this.destSkyVectorMapLinkUrl);
             },
+            fetchMidpointVFRMap() {
+                this.$refs.midpointSkyvectorMap.classList.remove("d-none");
+
+                let skyvectorScriptEl;
+
+                if (this.midpointSkyvectorScriptEl) {
+                    this.midpointSkyvectorScriptEl.remove();
+                }
+
+                skyvectorScriptEl = document.createElement('script');
+                skyvectorScriptEl.id = "midpoint-skyvector-script";
+                this.midpointSkyvectorScriptEl = skyvectorScriptEl;
+                this.$refs.midpointSkyvectorContainer.appendChild(skyvectorScriptEl);
+
+                skyvectorScriptEl.setAttribute("src",this.midpointSkyVectorMapLinkUrl);
+            },
             joinUrlParams(params) {
                 let joined_params = [];
                 for (const [paramName, paramVal] of Object.entries(params)) {
@@ -775,12 +812,12 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
 
                 return params_str;
             },
-            generateSkyVectorMapUrl(lat, long, el_id) {
+            generateSkyVectorMapUrl(lat, long, el_id, scale = 3) {
                 let latLong = `${lat},${long}`;
                 const params = {
-                    s: 5,
+                    s: scale,
                     c: el_id,
-                    i: 21,
+                    i: SKYVECTOR_WORLD_VFR,
                     ll: latLong,
                 };
                 const url_path = "api/lchart";

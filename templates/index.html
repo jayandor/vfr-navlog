@@ -100,6 +100,7 @@
         }
 
         .section-container {
+            margin-top: 1rem;
             margin-bottom: 1rem;
         }
 
@@ -441,6 +442,7 @@
                             >
                             </div>
                             <button class="btn btn-info" @click.prevent="fetchOriginVFRMap">Fetch VFR Map of {{ navlog.originICAO }}</button>
+                            <input type="number" min="1" max="15" step="1" v-model="originSkyvectorMapScale">
                         </div>
 
                         <div ref="destSkyvectorContainer" class="my-3">
@@ -452,6 +454,19 @@
                             >
                             </div>
                             <button class="btn btn-info" @click.prevent="fetchDestVFRMap">Fetch VFR Map of {{ navlog.destICAO }}</button>
+                            <input type="number" min="1" max="15" step="1" v-model="destSkyvectorMapScale">
+                        </div>
+
+                        <div ref="midpointSkyvectorContainer" class="my-3">
+                            <div
+                                id="midpointSkyvectorMap"
+                                class="d-none my-3"
+                                style="width: 700px; height: 700px;"
+                                ref="midpointSkyvectorMap"
+                            >
+                            </div>
+                            <button class="btn btn-info" @click.prevent="fetchMidpointVFRMap">Fetch VFR Map of trip midpoint</button>
+                            <input type="number" min="1" max="15" step="1" v-model="midpointSkyvectorMapScale">
                         </div>
                     </div>
                 </div>
