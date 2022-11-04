@@ -36,6 +36,12 @@
             color: #999;
         }
 
+        .footnote-text {
+            color: #999;
+            font-size: 0.9em;
+            font-style: italic;
+        }
+
         .info-box {
             background: #cbf3ff;
             padding: 1em 1.5em;
@@ -177,6 +183,7 @@
             <h1 class="mb-3">VFR NavLog Helper</h1>
 
             <h5 class="subheading">Created by Jordan Williamson</h5>
+            <h6 class="footnote-text">Copyright {{ (new Date).getFullYear() }}, Jordan Williamson, All rights reserved</h6>
 
             <hr>
 
@@ -212,8 +219,8 @@
                             </div>
                         </div>
 
-                        <p v-if="airplaneData[navlog.planeType]">
-                            <small><em class="text-faded">{{ airplaneData[navlog.planeType]["dataSource"] }}</em></small>
+                        <p v-if="airplaneData[navlog.planeType]" class="footnote-text">
+                            {{ airplaneData[navlog.planeType]["dataSource"] }}
                         </p>
                     </div>
 
@@ -305,8 +312,9 @@
 
                         <p><span class="calculated">{{ navlog.originICAO }} Latitude/longitude: {{ originLatLong ? formatLatOrLong(originLatLong.lat) : "" }}, {{ originLatLong ? formatLatOrLong(originLatLong.long) : "" }}</span></p>
 
-                        <p>
-                            <small><em class="text-faded">Origin METAR observed time: {{ (originMetar && originMetar["observed"]) ? new Date(originMetar["observed"]) : "-" }}</em></small>
+                        <p class="footnote-text">
+                            Origin METAR observed time: {{ (originMetar && originMetar["observed"]) ? new Date(originMetar["observed"]) : "-" }}<br>
+                            (METAR data from CheckWX.com)
                         </p>
                     </div>
                 </div>
@@ -398,8 +406,9 @@
 
                         <p><span class="calculated">{{ navlog.destICAO }} Latitude/longitude: {{ destLatLong ? formatLatOrLong(destLatLong.lat) : "" }}, {{ destLatLong ? formatLatOrLong(destLatLong.long) : "" }}</span></p>
 
-                        <p>
-                            <small><em class="text-faded">Destination METAR observed time: {{ (destMetar && destMetar["observed"]) ? new Date(destMetar["observed"]) : "-" }}</em></small>
+                        <p class="footnote-text">
+                            Destination METAR observed time: {{ (destMetar && destMetar["observed"]) ? new Date(destMetar["observed"]) : "-" }}<br>
+                            (METAR data from CheckWX.com)
                         </p>
                     </div>
                 </div>
@@ -468,6 +477,8 @@
                             <button class="btn btn-info" @click.prevent="fetchMidpointVFRMap">Fetch VFR Map of trip midpoint</button>
                             <input type="number" min="1" max="15" step="1" v-model="midpointSkyvectorMapScale">
                         </div>
+
+                        <p class="footnote-text">(VFR Maps from SkyVector.com)</p>
                     </div>
                 </div>
             </div>
@@ -593,8 +604,9 @@
                     <div class="accordion-body">
 
                         <div class="mb-3 mt-2">
-                            <p>
-                                <small><em class="text-faded">Winds Aloft Data issuance time: {{ windsAloft["issuanceTime"] ? new Date(windsAloft["issuanceTime"]) : "-" }}</em></small>
+                            <p class="footnote-text">
+                                Winds Aloft Data issuance time: {{ windsAloft["issuanceTime"] ? new Date(windsAloft["issuanceTime"]) : "-" }}<br>
+                                (Winds Aloft data from api.weather.gov)
                             </p>
                             <button
                                 class="btn btn-light"
