@@ -5,6 +5,9 @@ let defaultLeg = {
     label: "",
 }
 
+const VFRMAP_HOST = "http://vfrmap.com";
+const SKYVECTOR_HOST = "//skyvector.com";
+
 let defaultNavlogData = {
 
     planeType: "cessna172m",
@@ -677,6 +680,39 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 let remainingDistance = this.tripDistance - total;
                 return remainingDistance;
             },
+
+            vfrMapImageUrl() {
+                if (!this.originLatLong) return "";
+                const url_path = "/api";
+                const params = {
+                    req: "map",
+                    type: "vfrc",
+                    lat: this.originLatLong.lat,
+                    lon: this.originLatLong.long,
+                    zoom: 10,
+                    width: 350,
+                    height: 350
+                };
+                return this.generateVfrMapUrl(url_path, params);
+            },
+            originSkyVectorMapLinkUrl() {
+                if (!this.originLatLong) return "";
+
+                let lat = this.originLatLong.lat;
+                let long = this.originLatLong.long;
+                const el_id = this.$refs.originSkyvectorMap.id;
+
+                return this.generateSkyVectorMapUrl(lat, long, el_id);
+            },
+            destSkyVectorMapLinkUrl() {
+                if (!this.destLatLong) return "";
+
+                let lat = this.destLatLong.lat;
+                let long = this.destLatLong.long;
+                const el_id = this.$refs.destSkyvectorMap.id;
+
+                return this.generateSkyVectorMapUrl(lat, long, el_id);
+            },
         },
         mounted() {
             if (localStorage.getItem('navlog')) {
@@ -697,6 +733,73 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             this.airportLatLong = airportLatLong;
         },
         methods: {
+            fetchOriginVFRMap() {
+                this.$refs.originSkyvectorMap.classList.remove("d-none");
+
+                let skyvectorScriptEl;
+
+                if (this.originSkyvectorScriptEl) {
+                    this.originSkyvectorScriptEl.remove();
+                }
+
+                skyvectorScriptEl = document.createElement('script');
+                skyvectorScriptEl.id = "origin-skyvector-script";
+                this.$refs.originSkyvectorContainer.appendChild(skyvectorScriptEl);
+                this.originSkyvectorScriptEl = skyvectorScriptEl;
+
+                skyvectorScriptEl.setAttribute("src",this.originSkyVectorMapLinkUrl);
+
+            },
+            fetchDestVFRMap() {
+                this.$refs.destSkyvectorMap.classList.remove("d-none");
+
+                let skyvectorScriptEl;
+
+                if (this.destSkyvectorScriptEl) {
+                    this.destSkyvectorScriptEl.remove();
+                }
+
+                skyvectorScriptEl = document.createElement('script');
+                skyvectorScriptEl.id = "dest-skyvector-script";
+                this.destSkyvectorScriptEl = skyvectorScriptEl;
+                this.$refs.destSkyvectorContainer.appendChild(skyvectorScriptEl);
+
+                skyvectorScriptEl.setAttribute("src",this.destSkyVectorMapLinkUrl);
+            },
+            joinUrlParams(params) {
+                let joined_params = [];
+                for (const [paramName, paramVal] of Object.entries(params)) {
+                    joined_params.push(`${encodeURIComponent(paramName)}=${encodeURIComponent(paramVal)}`);
+                }
+                const params_str = joined_params.join("&");
+
+                return params_str;
+            },
+            generateSkyVectorMapUrl(lat, long, el_id) {
+                let latLong = `${lat},${long}`;
+                const params = {
+                    s: 5,
+                    c: el_id,
+                    i: 21,
+                    ll: latLong,
+                };
+                const url_path = "api/lchart";
+
+                let params_str = this.joinUrlParams(params);
+
+                const url = `${SKYVECTOR_HOST}/${url_path}?${params_str}`;
+                return url;
+            },
+            generateVfrMapUrl(url_path, params) {
+                let joined_params = [];
+                for (const [paramName, paramVal] of Object.entries(params)) {
+                    joined_params.push(`${encodeURIComponent(paramName)}=${encodeURIComponent(paramVal)}`);
+                }
+                const params_str = joined_params.join("&");
+
+                const url = `${VFRMAP_HOST}/${url_path}?${params_str}`;
+                return url;
+            },
             resetData() {
                 this.navlog = defaultNavlogData;
             },
