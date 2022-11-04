@@ -396,6 +396,10 @@
                 </div>
             </div>
 
+            <div>
+                <button class="btn btn-warning" @click.prevent="reverseOriginDestination">Reverse Origin/Destination</button>
+            </div>
+
             <div class="section-container">
                 <h2
                     class="accordion-header"
@@ -726,59 +730,40 @@
                             <p>
                                 <label :for="'leg-' + index + '.distance'" class="form-label d-inline-block me-2">Leg distance (nm):</label>
 
-                                <input v-if="leg.label == 'TOD'"
-                                    class="form-control d-inline-block" :id="'leg-' + index + '.distance'" size="3" :value="formatDistance(descentDistance)" readonly>
-                                <input v-else-if="leg.label == 'TOC'"
-                                    class="form-control d-inline-block" :id="'leg-' + index + '.distance'" size="3" :value="formatDistance(climbDistance)" readonly>
+                                <input v-if="isCalculatedLeg(leg)"
+                                    class="form-control d-inline-block text-primary border-primary"
+                                    :id="'leg-' + index + '.distance'"
+                                    :value="formatDistance(getLegDistance(leg))"
+                                    :class="{ 'is-invalid': getLegDistance(leg) < 0 }"
+                                    size="3"
+                                    readonly
+                                >
                                 <input v-else type="number"
-                                    class="form-control d-inline-block" :id="'leg-' + index + '.distance'" size="3" v-model="leg.distance" step="0.5" min="0">
+                                    class="form-control d-inline-block"
+                                    :id="'leg-' + index + '.distance'"
+                                    size="3"
+                                    v-model="leg.distance"
+                                    :class="{ 'is-invalid': leg.distance < 0 }"
+                                    step="0.5"
+                                    min="0"
+                                >
 
                             </p>
 
-                            <template v-if="cruisePerformanceData">
+                            <template v-if="cruisePerformanceData && leg.label != navlog.originICAO">
                                 <p>Leg cruise time:
                                     <span
-                                        v-if="leg.label == 'TOD'"
                                         class="calculated"
                                     >
-                                        {{ formatTimeMinutes(calculateLegTimeMinutes(descentDistance, cruiseGroundSpeed)) }} mins (at ground speed of {{ formatAirspeed(cruiseGroundSpeed) }} kts)
-                                    </span>
-
-                                    <span
-                                        v-else-if="leg.label == 'TOC'"
-                                        class="calculated"
-                                    >
-                                        {{ formatTimeMinutes(calculateLegTimeMinutes(climbDistance, climbGroundSpeed)) }} mins (at ground speed of {{ formatAirspeed(climbGroundSpeed) }} kts)
-                                    </span>
-
-                                    <span
-                                        v-else
-                                        class="calculated"
-                                    >
-                                        {{ formatTimeMinutes(calculateLegTimeMinutes(leg.distance, cruiseGroundSpeed)) }} mins (at ground speed of {{ formatAirspeed(cruiseGroundSpeed) }} kts)
+                                        {{ formatTimeMinutes(calculateLegTimeMinutes(getLegDistance(leg), getLegGroundSpeed(leg))) }} mins (at ground speed of {{ formatAirspeed(getLegGroundSpeed(leg)) }} kts)
                                     </span>
                                 </p>
 
                                 <p>Leg fuel burn:
                                     <span
-                                        v-if="leg.label == 'TOD'"
                                         class="calculated"
                                     >
-                                        {{ formatFuelBurn(calculateLegTimeHours(descentDistance, cruiseGroundSpeed) * cruisePerformanceData.gph) }} gallons (at {{ formatFuelBurn(cruisePerformanceData.gph) }} gph)
-                                    </span>
-
-                                    <span
-                                        v-else-if="leg.label == 'TOC'"
-                                        class="calculated"
-                                    >
-                                        {{ formatFuelBurn(calculateLegTimeHours(climbDistance, climbGroundSpeed) * cruisePerformanceData.gph) }} gallons (at {{ formatFuelBurn(cruisePerformanceData.gph) }} gph)
-                                    </span>
-
-                                    <span
-                                        v-else
-                                        class="calculated"
-                                    >
-                                        {{ formatFuelBurn(calculateLegTimeHours(leg.distance, cruiseGroundSpeed) * cruisePerformanceData.gph) }} gallons (at {{ formatFuelBurn(cruisePerformanceData.gph) }} gph)
+                                        {{ formatFuelBurn(calculateLegTimeHours(getLegDistance(leg), getLegGroundSpeed(leg)) * cruisePerformanceData.gph) }} gallons (at {{ formatAirspeed(cruisePerformanceData.gph) }} gph)
                                     </span>
                                 </p>
 

@@ -623,17 +623,9 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 let total = 0;
 
                 for (let leg of this.navlog.legs) {
-                    let leg_distance;
-                    switch (leg.label) {
-                        case "TOC":
-                                leg_distance = this.climbDistance;
-                                break;
-                        case "TOD":
-                                leg_distance = this.descentDistance;
-                                break;
-                        default:
-                                leg_distance = leg.distance;
-                    }
+                    let leg_distance = this.getLegDistance(leg);
+                    let leg_speed = this.getLegGroundSpeed(leg);
+
                     total += leg_distance;
                 }
 
@@ -643,19 +635,9 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 let total = 0;
 
                 for (let leg of this.navlog.legs) {
-                    let leg_distance;
-                    let leg_speed = this.cruiseGroundSpeed;
-                    switch (leg.label) {
-                        case "TOC":
-                                leg_distance = this.climbDistance;
-                                leg_speed = this.climbGroundSpeed;
-                                break;
-                        case "TOD":
-                                leg_distance = this.descentDistance;
-                                break;
-                        default:
-                                leg_distance = leg.distance;
-                    }
+                    let leg_distance = this.getLegDistance(leg);
+                    let leg_speed = this.getLegGroundSpeed(leg);
+
                     total += this.calculateLegTimeMinutes(leg_distance, leg_speed);
                 }
 
@@ -667,23 +649,33 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 let total = 0;
 
                 for (let leg of this.navlog.legs) {
-                    let leg_distance;
-                    let leg_speed = this.cruiseGroundSpeed;
-                    switch (leg.label) {
-                        case "TOC":
-                                leg_distance = this.climbDistance;
-                                leg_speed = this.climbGroundSpeed;
-                                break;
-                        case "TOD":
-                                leg_distance = this.descentDistance;
-                                break;
-                        default:
-                                leg_distance = leg.distance;
-                    }
-                     total += this.calculateLegTimeHours(leg_distance, leg_speed) * this.cruisePerformanceData.gph;
+                    let leg_distance = this.getLegDistance(leg);
+                    let leg_speed = this.getLegGroundSpeed(leg);
+
+                    total += this.calculateLegTimeHours(leg_distance, leg_speed) * this.cruisePerformanceData.gph;
                 }
 
                 return total;
+            },
+
+            finalLegDistance() {
+                let total = 0;
+
+                for (let leg of this.navlog.legs) {
+                    let leg_distance;
+
+                    switch (leg.label) {
+                        case this.navlog.destICAO:
+                            leg_distance = 0;
+                            break;
+                        default:
+                            leg_distance = this.getLegDistance(leg);
+                    }
+                    total += leg_distance;
+                }
+
+                let remainingDistance = this.tripDistance - total;
+                return remainingDistance;
             },
         },
         mounted() {
@@ -1223,6 +1215,78 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
 
             reverseLegs() {
                 this.navlog.legs = this.navlog.legs.reverse();
+                for (let leg of this.navlog.legs) {
+                    if (leg.label == "TOC") {
+                        leg.label = "TOD";
+                    } else if (leg.label == "TOD") {
+                        leg.label = "TOC";
+                    }
+                }
+            },
+
+            isCalculatedLeg(leg) {
+                switch (leg.label) {
+                    case this.navlog.originICAO:
+                    case "TOC":
+                    case "TOD":
+                    case this.navlog.destICAO:
+                        return true;
+                    default:
+                        return false;
+                }
+            },
+
+            getLegDistance(leg) {
+                switch (leg.label) {
+                    case this.navlog.originICAO:
+                        return 0;
+                    case "TOC":
+                        return this.climbDistance;
+                    case "TOD":
+                        return this.descentDistance;
+                    case this.navlog.destICAO:
+                        return this.finalLegDistance;
+                    default:
+                        return leg.distance;
+                }
+            },
+
+            getLegGroundSpeed(leg) {
+                switch (leg.label) {
+                    case "TOC":
+                        return this.climbGroundSpeed;
+                    default:
+                        return this.cruiseGroundSpeed;
+                }
+            },
+
+            reverseOriginDestination() {
+                const prevOriginICAO = this.navlog.originICAO;
+                const prevOriginMagVar = this.navlog.originMagVar;
+                const prevOriginCustomTemp = this.navlog.originCustomTemp;
+                const prevOriginCustomElev = this.navlog.originCustomElev;
+                const prevOriginCustomAltim = this.navlog.originCustomAltim;
+                const prevOriginCustomWindDir = this.navlog.originCustomWindDir;
+                const prevOriginCustomWindSpeed = this.navlog.originCustomWindSpeed;
+
+                this.navlog.originICAO = this.navlog.destICAO;
+                this.navlog.originMagVar = this.navlog.destMagVar;
+                this.navlog.originCustomTemp = this.navlog.destCustomTemp;
+                this.navlog.originCustomElev = this.navlog.destCustomElev;
+                this.navlog.originCustomAltim = this.navlog.destCustomAltim;
+                this.navlog.originCustomWindDir = this.navlog.destCustomWindDir;
+                this.navlog.originCustomWindSpeed = this.navlog.destCustomWindSpeed;
+
+                this.navlog.destICAO = prevOriginICAO;
+                this.navlog.destMagVar = prevOriginMagVar;
+                this.navlog.destCustomTemp = prevOriginCustomTemp;
+                this.navlog.destCustomElev = prevOriginCustomElev;
+                this.navlog.destCustomAltim = prevOriginCustomAltim;
+                this.navlog.destCustomWindDir = prevOriginCustomWindDir;
+                this.navlog.destCustomWindSpeed = prevOriginCustomWindSpeed;
+
+                this.reverseLegs();
+
             },
 
             download(filename, text) {
