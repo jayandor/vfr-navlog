@@ -450,8 +450,9 @@
                                 ref="originSkyvectorMap"
                             >
                             </div>
-                            <button class="btn btn-info" @click.prevent="fetchOriginVFRMap">Fetch VFR Map of {{ navlog.originICAO }}</button>
-                            <input type="number" min="1" max="15" step="1" v-model="originSkyvectorMapScale">
+                            <button class="btn btn-info mx-2" @click.prevent="fetchOriginVFRMap">Fetch VFR Map of {{ navlog.originICAO }}</button>
+                            Zoom Level (higher -> farther):
+                            <input class="form-control d-inline-block mx-2" size="3" type="number" min="1" max="15" step="1" v-model="originSkyvectorMapScale">
                         </div>
 
                         <div ref="destSkyvectorContainer" class="my-3">
@@ -462,8 +463,9 @@
                                 ref="destSkyvectorMap"
                             >
                             </div>
-                            <button class="btn btn-info" @click.prevent="fetchDestVFRMap">Fetch VFR Map of {{ navlog.destICAO }}</button>
-                            <input type="number" min="1" max="15" step="1" v-model="destSkyvectorMapScale">
+                            <button class="btn btn-info mx-2" @click.prevent="fetchDestVFRMap">Fetch VFR Map of {{ navlog.destICAO }}</button>
+                            Zoom Level (higher -> farther):
+                            <input class="form-control d-inline-block mx-2" size="3" type="number" min="1" max="15" step="1" v-model="destSkyvectorMapScale">
                         </div>
 
                         <div ref="midpointSkyvectorContainer" class="my-3">
@@ -474,8 +476,9 @@
                                 ref="midpointSkyvectorMap"
                             >
                             </div>
-                            <button class="btn btn-info" @click.prevent="fetchMidpointVFRMap">Fetch VFR Map of trip midpoint</button>
-                            <input type="number" min="1" max="15" step="1" v-model="midpointSkyvectorMapScale">
+                            <button class="btn btn-info mx-2" @click.prevent="fetchMidpointVFRMap">Fetch VFR Map of trip midpoint</button>
+                            Zoom Level (higher -> farther):
+                            <input class="form-control d-inline-block mx-2" size="3" type="number" min="1" max="15" step="1" v-model="midpointSkyvectorMapScale">
                         </div>
 
                         <p class="footnote-text">(VFR Maps from SkyVector.com)</p>
