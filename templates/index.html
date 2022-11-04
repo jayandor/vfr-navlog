@@ -303,6 +303,10 @@
                         </p>
 
                         <p><span class="calculated">{{ navlog.originICAO }} Latitude/longitude: {{ originLatLong ? formatLatOrLong(originLatLong.lat) : "" }}, {{ originLatLong ? formatLatOrLong(originLatLong.long) : "" }}</span></p>
+
+                        <p>
+                            <small><em class="text-faded">Origin METAR observed time: {{ (originMetar && originMetar["observed"]) ? new Date(originMetar["observed"]) : "-" }}</em></small>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -392,6 +396,10 @@
                         </p>
 
                         <p><span class="calculated">{{ navlog.destICAO }} Latitude/longitude: {{ destLatLong ? formatLatOrLong(destLatLong.lat) : "" }}, {{ destLatLong ? formatLatOrLong(destLatLong.long) : "" }}</span></p>
+
+                        <p>
+                            <small><em class="text-faded">Destination METAR observed time: {{ (destMetar && destMetar["observed"]) ? new Date(destMetar["observed"]) : "-" }}</em></small>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -548,6 +556,9 @@
                     <div class="accordion-body">
 
                         <div class="mb-3 mt-2">
+                            <p>
+                                <small><em class="text-faded">Winds Aloft Data issuance time: {{ windsAloft["issuanceTime"] ? new Date(windsAloft["issuanceTime"]) : "-" }}</em></small>
+                            </p>
                             <button
                                 class="btn btn-light"
                                 id="winds-aloft-help-btn"
