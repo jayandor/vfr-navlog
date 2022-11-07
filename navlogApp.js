@@ -13,6 +13,7 @@ const SKYVECTOR_ST_LOUIS_VFR = 21;
 let defaultNavlogData = {
 
     planeType: "cessna172m",
+    aircraftNumber: "",
 
     weight: 2300,
 
@@ -90,6 +91,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 originSkyvectorMapScale: 3,
                 destSkyvectorMapScale: 3,
                 midpointSkyvectorMapScale: 3,
+                layoutShown: "form-layout",
             }
         },
         computed: {
@@ -586,6 +588,9 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                     return null;
                 }
             },
+            cruiseKTAS() {
+                return this.convertKCAStoKTAS(this.cruiseKCAS, this.navlog.cruiseAlt, this.cruiseTemp);
+            },
             cruiseKCAS() {
                 return this.convertKTAStoKCAS(this.cruisePerformanceData.ktas, this.navlog.cruiseAlt, this.cruiseTemp);
             },
@@ -611,7 +616,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             },
             climbGroundSpeed() {
                 if (this.cruisePerformanceData) {
-                    return this.calculateGroundSpeed(this.climbKTAS, this.cruiseTrueHeading, this.cruiseWindDir, this.cruiseWindSpeed);
+                    return this.calculateGroundSpeed(this.climbKTAS, this.climbTrueHeading, this.originWindDir, this.originWindSpeed);
                 } else {
                     return 0;
                 }
@@ -837,6 +842,23 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 const url = `${VFRMAP_HOST}/${url_path}?${params_str}`;
                 return url;
             },
+
+            toggleLayout() {
+                switch (this.layoutShown) {
+                    case 'form-layout':
+                        this.layoutShown = 'table-layout';
+                        this.$refs.contentContainer.classList.remove("container");
+                        this.$refs.contentContainer.classList.add("container-fluid");
+                        break;
+                    case 'table-layout':
+                        this.layoutShown = 'form-layout';
+                        this.$refs.contentContainer.classList.remove("container-fluid");
+                        this.$refs.contentContainer.classList.add("container");
+                        break;
+                }
+            },
+
+
             resetData() {
                 this.navlog = defaultNavlogData;
             },
