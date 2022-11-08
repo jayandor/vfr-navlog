@@ -111,6 +111,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 destSkyvectorMapScale: 3,
                 midpointSkyvectorMapScale: 3,
                 layoutShown: "form",
+                layoutCompressed: false,
             }
         },
         computed: {
@@ -780,6 +781,11 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             let url = new URL(document.location.href);
             let layoutShown = url.searchParams.get('layout') ?? 'form';
             this.layoutShown = layoutShown;
+
+            let layoutCompressed = url.searchParams.get('compressed') ?? 'false';
+            this.layoutCompressed = layoutCompressed == Boolean(parseInt(layoutCompressed));
+
+            this.updateLayoutCompressed();
         },
         methods: {
             fetchOriginVFRMap() {
@@ -866,24 +872,42 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 return url;
             },
 
+            setUrlParam(param, val) {
+                let u = new URL(document.location.href);
+                u.searchParams.set(param, val);
+                window.history.pushState("", "", u.href);
+            },
+
             toggleLayout() {
-                let u;
                 switch (this.layoutShown) {
                     case 'form':
                         this.layoutShown = 'table';
-
-                        u = new URL(document.location.href);
-                        u.searchParams.set('layout', this.layoutShown);
-                        window.history.pushState("", "", u.href);
-
                         break;
                     case 'table':
                         this.layoutShown = 'form';
-
-                        u = new URL(document.location.href);
-                        u.searchParams.set('layout', this.layoutShown);
-                        window.history.pushState("", "", u.href);
                         break;
+                }
+
+                this.setUrlParam('layout', this.layoutShown);
+            },
+
+            toggleCompressLayout() {
+                if (this.layoutCompressed) {
+                    this.layoutCompressed = false;
+                } else {
+                    this.layoutCompressed = true;
+                }
+
+                this.setUrlParam('compressed', this.layoutCompressed ? 1 : 0);
+                this.updateLayoutCompressed();
+            },
+
+            updateLayoutCompressed() {
+                let el = $("html");
+                if (this.layoutCompressed) {
+                    el.addClass("compressed");
+                } else {
+                    el.removeClass("compressed");
                 }
             },
 
