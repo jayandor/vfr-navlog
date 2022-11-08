@@ -247,7 +247,8 @@
         }
 
         #navlog-table .heading-cell,
-        #navlog-table th {
+        #navlog-table th,
+        #airport-frequencies th {
             font-weight: bold;
             background: #fffee9 !important;
         }
@@ -281,7 +282,7 @@
         }
 
         #airport-frequencies {
-            max-width: 70em;
+            max-width: 50em;
             margin: 0 auto;
         }
 
@@ -347,7 +348,9 @@
                                                 {{ airplaneData[type]["label"] }}
                                             </option>
                                         </select>
+                                    </div>
 
+                                    <div>
                                         <label for="navlog.aircraftNumber" class="form-label d-inline-block me-2">Aircraft Number:</label>
                                         <input type="text" class="form-control d-inline-block" id="navlog.aircraftNumber" size="8" v-model="navlog.aircraftNumber">
                                     </div>
@@ -1073,7 +1076,7 @@
 
                 <div>
 
-                    <div class="row">
+                    <div class="navlog-table-container row">
 
                         <div class="col-9">
                             <table class="table table-bordered bg-white" id="navlog-table">
