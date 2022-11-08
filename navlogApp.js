@@ -14,6 +14,7 @@ let defaultNavlogData = {
 
     planeType: "cessna172m",
     aircraftNumber: "",
+    additionalNotes: "",
 
     weight: 2300,
 
@@ -24,6 +25,15 @@ let defaultNavlogData = {
     originCustomWindSpeed: 0,
     originCustomElev: 0,
     originMagVar: 0,
+
+    originATISFreq: '',
+    originGroundFreq: '',
+    originTowerFreq: '',
+    originApproachFreq: '',
+    originDepartureFreq: '',
+    originCTAFFreq: '',
+    originFSSFreq: '',
+    originUNICOMFreq: '',
 
     originTempUseMetar: true,
     originAltimUseMetar: true,
@@ -66,6 +76,15 @@ let defaultNavlogData = {
     destElev: 0,
     destMagVar: 0,
 
+    destATISFreq: '',
+    destDepartureFreq: '',
+    destApproachFreq: '',
+    destTowerFreq: '',
+    destGroundFreq: '',
+    destCTAFFreq: '',
+    destFSSFreq: '',
+    destUNICOMFreq: '',
+
     cruiseAlt: 4500,
     cruiseRPM: 2500,
     cruiseTrueCourse: 0,
@@ -91,7 +110,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 originSkyvectorMapScale: 3,
                 destSkyvectorMapScale: 3,
                 midpointSkyvectorMapScale: 3,
-                layoutShown: "form-layout",
+                layoutShown: "form",
             }
         },
         computed: {
@@ -757,6 +776,10 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             this.$el.parentNode.classList.remove("loading");
 
             this.airportLatLong = airportLatLong;
+
+            let url = new URL(document.location.href);
+            let layoutShown = url.searchParams.get('layout') ?? 'form';
+            this.layoutShown = layoutShown;
         },
         methods: {
             fetchOriginVFRMap() {
@@ -844,16 +867,22 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             },
 
             toggleLayout() {
+                let u;
                 switch (this.layoutShown) {
-                    case 'form-layout':
-                        this.layoutShown = 'table-layout';
-                        this.$refs.contentContainer.classList.remove("container");
-                        this.$refs.contentContainer.classList.add("container-fluid");
+                    case 'form':
+                        this.layoutShown = 'table';
+
+                        u = new URL(document.location.href);
+                        u.searchParams.set('layout', this.layoutShown);
+                        window.history.pushState("", "", u.href);
+
                         break;
-                    case 'table-layout':
-                        this.layoutShown = 'form-layout';
-                        this.$refs.contentContainer.classList.remove("container-fluid");
-                        this.$refs.contentContainer.classList.add("container");
+                    case 'table':
+                        this.layoutShown = 'form';
+
+                        u = new URL(document.location.href);
+                        u.searchParams.set('layout', this.layoutShown);
+                        window.history.pushState("", "", u.href);
                         break;
                 }
             },
@@ -1430,6 +1459,14 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 const prevOriginCustomAltim = this.navlog.originCustomAltim;
                 const prevOriginCustomWindDir = this.navlog.originCustomWindDir;
                 const prevOriginCustomWindSpeed = this.navlog.originCustomWindSpeed;
+                const prevATISFreq = this.navlog.originATISFreq;
+                const prevDepartureFreq = this.navlog.originDepartureFreq;
+                const prevApproachFreq = this.navlog.originApproachFreq;
+                const prevTowerFreq = this.navlog.originTowerFreq;
+                const prevGroundFreq = this.navlog.originGroundFreq;
+                const prevCTAFFreq = this.navlog.originCTAFFreq;
+                const prevFSSFreq = this.navlog.originFSSFreq;
+                const prevUNICOMFreq = this.navlog.originUNICOMFreq;
 
                 this.navlog.originICAO = this.navlog.destICAO;
                 this.navlog.originMagVar = this.navlog.destMagVar;
@@ -1438,6 +1475,14 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 this.navlog.originCustomAltim = this.navlog.destCustomAltim;
                 this.navlog.originCustomWindDir = this.navlog.destCustomWindDir;
                 this.navlog.originCustomWindSpeed = this.navlog.destCustomWindSpeed;
+                this.navlog.originATISFreq = this.navlog.destATISFreq;
+                this.navlog.originDepartureFreq = this.navlog.destDepartureFreq;
+                this.navlog.originApproachFreq = this.navlog.destApproachFreq;
+                this.navlog.originTowerFreq = this.navlog.destTowerFreq;
+                this.navlog.originGroundFreq = this.navlog.destGroundFreq;
+                this.navlog.originCTAFFreq = this.navlog.destCTAFFreq;
+                this.navlog.originFSSFreq = this.navlog.destFSSFreq;
+                this.navlog.originUNICOMFreq = this.navlog.destUNICOMFreq;
 
                 this.navlog.destICAO = prevOriginICAO;
                 this.navlog.destMagVar = prevOriginMagVar;
@@ -1446,6 +1491,14 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 this.navlog.destCustomAltim = prevOriginCustomAltim;
                 this.navlog.destCustomWindDir = prevOriginCustomWindDir;
                 this.navlog.destCustomWindSpeed = prevOriginCustomWindSpeed;
+                this.navlog.destATISFreq = prevATISFreq;
+                this.navlog.destDepartureFreq = prevDepartureFreq;
+                this.navlog.destApproachFreq = prevApproachFreq;
+                this.navlog.destTowerFreq = prevTowerFreq;
+                this.navlog.destGroundFreq = prevGroundFreq;
+                this.navlog.destCTAFFreq = prevCTAFFreq;
+                this.navlog.destFSSFreq = prevFSSFreq;
+                this.navlog.destUNICOMFreq = prevUNICOMFreq;
 
                 this.reverseLegs();
 
