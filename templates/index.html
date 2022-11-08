@@ -242,6 +242,15 @@
         #leg-ete-col {
             width: 6em;
         }
+        #leg-ate-col {
+            width: 6em;
+        }
+        #leg-mag-dev-col {
+            width: 6em;
+        }
+        #leg-compass-heading-col {
+            width: 6em;
+        }
         #leg-fuel-burn-col {
             width: 5.5em;
         }
@@ -284,6 +293,35 @@
         #airport-frequencies {
             max-width: 50em;
             margin: 0 auto;
+        }
+
+        @media print {
+            .btn {
+                display: none;
+            }
+
+            .navlog-actions {
+                display: none;
+            }
+
+            #app {
+                padding: 0;
+            }
+            .page-container {
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+                padding: 1rem 2rem;
+            }
+            input::-webkit-outer-spin-button,
+            input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            /* Firefox */
+            input[type=number] {
+                -moz-appearance: textfield;
+            }
         }
 
     </style>
@@ -1191,8 +1229,11 @@
                                                         <th id="leg-true-heading-col">True Heading</th>
                                                         <th id="leg-mag-var-col">Mag. Var.</th>
                                                         <th id="leg-mag-heading-col">Mag. Heading</th>
+                                                        <th id="leg-mag-dev-col">Mag. Dev.</th>
+                                                        <th id="leg-compass-heading-col">Comp. Heading</th>
                                                         <th id="leg-groundspeed-col">Ground Speed</th>
                                                         <th id="leg-ete-col">ETE</th>
+                                                        <th id="leg-ate-col">ATE</th>
                                                         <th id="leg-fuel-burn-col">Fuel Burn</th>
                                                     </tr>
                                                 </thead>
@@ -1267,6 +1308,8 @@
                                                         <td>
                                                             {{ formatDirection( leg.label == this.navlog.originICAO || leg.label == "TOC" ? climbMagneticHeading : cruiseMagneticHeading) }}&deg;
                                                         </td>
+                                                        <td></td>
+                                                        <td></td>
                                                         <td>
                                                             {{ leg.label == navlog.originICAO ? "-" :
                                                                 formatAirspeed( leg.label == "TOC" ? climbGroundSpeed : cruiseGroundSpeed) }} kts
@@ -1275,6 +1318,7 @@
                                                             {{ leg.label == navlog.originICAO ? "-" :
                                                                 formatTimeMinutes(calculateLegTimeMinutes(getLegDistance(leg), getLegGroundSpeed(leg))) }} mins
                                                         </td>
+                                                        <td></td>
                                                         <td>
                                                             {{ leg.label == navlog.originICAO ? formatFuelBurn(taxiTakeoffFuelUsed) :
                                                                 formatFuelBurn(calculateLegTimeHours(getLegDistance(leg), getLegGroundSpeed(leg)) * cruisePerformanceData.gph) }} gal
@@ -1284,7 +1328,7 @@
                                                 </tbody>
                                                 <tfoot>
                                                     <tr>
-                                                        <td colspan="13"></td>
+                                                        <td colspan="16"></td>
                                                         <td>{{ formatDistance(totalLegsDistance) }} nm</td>
                                                         <td></td>
                                                         <td>{{ formatTimeMinutes(totalLegsTime) }} mins</td>
@@ -1453,17 +1497,21 @@
 
                     <hr>
 
-                    <p>
-                        <button @click="resetData" class="btn btn-danger me-2">Reset values</button>
-                    </p>
+                    <div class="navlog-actions">
 
-                    <p>
-                        <button @click="downloadData" class="btn btn-info me-2">Download NavLog Custom Values</button>
-                        <span class="text-primary"><em>(only downloads values entered by user; does not include automatically calculated or retrieved data, like METARs)</em></span>
-                    </p>
+                        <p>
+                            <button @click="resetData" class="btn btn-danger me-2">Reset values</button>
+                        </p>
 
-                    <div class="drop-zone" @drop="fileDropped($event)" @dragover="fileDragStart($event)" @dragenter="fileDragStart($event)" @dragleave="fileDragEnd($event)" @dragend="fileDragEnd($event)">
-                        Drag a downloaded NavLog Custom Values file here to replace the current values with the values in that file
+                        <p>
+                            <button @click="downloadData" class="btn btn-info me-2">Download NavLog Custom Values</button>
+                            <span class="text-primary"><em>(only downloads values entered by user; does not include automatically calculated or retrieved data, like METARs)</em></span>
+                        </p>
+
+                        <div class="drop-zone" @drop="fileDropped($event)" @dragover="fileDragStart($event)" @dragenter="fileDragStart($event)" @dragleave="fileDragEnd($event)" @dragend="fileDragEnd($event)">
+                            Drag a downloaded NavLog Custom Values file here to replace the current values with the values in that file
+                        </div>
+
                     </div>
 
                 </div>
