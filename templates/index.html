@@ -22,6 +22,10 @@
             padding: 0 1%;
         }
 
+        .header .title {
+            margin-bottom: 1rem;
+        }
+
         .form-control.d-inline-block,
         .form-select.d-inline-block {
           width: initial;
@@ -82,6 +86,10 @@
             background: #ececec;
             padding: 3rem 4rem;
             border-radius: 5px;
+        }
+
+        .font-sans {
+            font-family: var(--bs-font-sans-serif);
         }
 
         .accordion-header {
@@ -148,6 +156,14 @@
             text-decoration-style: solid;
         }
 
+        .form-layout .airport-diagram {
+            max-height: 420px;
+        }
+
+        .table-layout .airport-diagram-container {
+            width: 20%;
+        }
+
         .leg-number {
             position: absolute;
             top: -8px;
@@ -197,6 +213,9 @@
             width: 25%;
         }
 
+        #leg-label-col {
+            min-width: 13em;
+        }
         #leg-true-course-col {
             width: 4em;
         }
@@ -268,6 +287,9 @@
         #navlog-table .col1 {
             width: 10em;
         }
+        #navlog-table .col2 {
+            min-width: 8em;
+        }
         #navlog-table .col3 {
             width: 10em;
         }
@@ -290,12 +312,34 @@
             width: 37%;
         }
 
+        #navlog-additional {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .compressed #navlog-additional {
+            flex-wrap: wrap;
+        }
+
+        .compressed #navlog-additional .airport-diagram-container {
+            order: 100;
+            width: calc(50% - 1rem);
+        }
+
         #airport-frequencies {
             max-width: 50em;
             margin: 0 auto;
         }
 
+
+
         @media print {
+            html {
+                font-size: 56%;
+            }
+
             .btn {
                 display: none;
             }
@@ -307,11 +351,42 @@
             #app {
                 padding: 0;
             }
+
+            hr {
+                margin: 0.5rem 0;
+            }
+
             .page-container {
                 margin-top: 0 !important;
                 margin-bottom: 0 !important;
                 padding: 1rem 2rem;
             }
+
+            .header {
+                display: flex;
+                gap: 1rem;
+                align-items: baseline;
+            }
+
+            .header .title {
+                margin-bottom: 0 !important;
+                font-size: 1.5rem;
+            }
+
+            .header .subheading {
+                margin-bottom: 0;
+                font-size: 1rem;
+            }
+
+            .header .footnote-text {
+                margin-bottom: 0;
+                font-size: 1rem;
+            }
+
+            .table-layout-title {
+                display: none;
+            }
+
             input::-webkit-outer-spin-button,
             input::-webkit-inner-spin-button {
                 -webkit-appearance: none;
@@ -321,6 +396,56 @@
             /* Firefox */
             input[type=number] {
                 -moz-appearance: textfield;
+            }
+
+            .form-control {
+                padding: 0rem 0rem;
+                border: none;
+            }
+
+            .input-group {
+                display: block;
+            }
+
+            .input-group-text {
+                display: inline;
+            }
+
+            .input-group > .form-control,
+            .input-group > .form-floating,
+            .input-group > .form-select {
+                width: 2.4em;
+                display: inline;
+            }
+
+            .input-group-text {
+                padding: 0;
+                background: none;
+                border: none;
+            }
+
+            .input-group > :not(:first-child):not(.dropdown-menu):not(.valid-tooltip):not(.valid-feedback):not(.invalid-tooltip):not(.invalid-feedback) {
+                margin-left: 0;
+            }
+
+            .table > :not(caption) > * > * {
+              padding: 0.3rem 0.3rem;
+            }
+
+            #navlog-legs-table {
+                margin-bottom: 0;
+            }
+
+            #leg-distance-col {
+                width: 5em;
+            }
+
+            #leg-altitude-col {
+                width: 5em;
+            }
+
+            #leg-mag-var-col {
+                width: 4em;
             }
         }
 
@@ -345,10 +470,12 @@
                 'container-fluid': layoutShown == 'table'
             }"
         >
-            <h1 class="mb-3">VFR NavLog Helper</h1>
+            <div class="header">
+                <h1 class="title">VFR NavLog Helper</h1>
 
-            <h5 class="subheading">Created by Jordan Williamson</h5>
-            <h6 class="footnote-text">Copyright {{ (new Date).getFullYear() }}, Jordan Williamson, All rights reserved</h6>
+                <h5 class="subheading">Created by Jordan Williamson</h5>
+                <h6 class="footnote-text">Copyright {{ (new Date).getFullYear() }}, Jordan Williamson, All rights reserved</h6>
+            </div>
 
             <hr>
 
@@ -480,9 +607,18 @@
                                         <label for="navlog.originElevUseMetar" class="form-label d-inline-block mx-2">Use METAR:</label>
                                     </div>
 
-                                    <div>
+                                    <div class="my-2">
                                         <label for="navlog.originMagVar" class="form-label d-inline-block me-2">Origin magnetic variation (&deg;):</label>
                                         <input type="number" class="form-control d-inline-block" id="navlog.originMagVar" size="3" v-model="navlog.originMagVar" step="1">
+                                    </div>
+
+                                    <div class="my-2">
+                                        <label for="navlog.originDiagramLink" class="form-label d-inline-block me-2">Origin airport diagram link:</label>
+                                        <input type="text" class="form-control d-inline-block" id="navlog.originDiagramLink" size="28" v-model="navlog.originDiagramLink">
+
+                                        <div class="my-2">
+                                            <img v-if="navlog.originDiagramLink" class="airport-diagram bg-white" :src="navlog.originDiagramLink">
+                                        </div>
                                     </div>
                                 </div>
 
@@ -574,9 +710,18 @@
                                         <label for="navlog.destElevUseMetar" class="form-label d-inline-block mx-2">Use METAR:</label>
                                     </div>
 
-                                    <div>
+                                    <div class="my-2">
                                         <label for="navlog.destMagVar" class="form-label d-inline-block me-2">Destination magnetic variation (&deg;):</label>
                                         <input type="number" class="form-control d-inline-block" id="navlog.destMagVar" size="3" v-model="navlog.destMagVar" step="1">
+                                    </div>
+
+                                    <div class="my-2">
+                                        <label for="navlog.destDiagramLink" class="form-label d-inline-block me-2">Destination airport diagram link:</label>
+                                        <input type="text" class="form-control d-inline-block" id="navlog.destDiagramLink" size="28" v-model="navlog.destDiagramLink">
+
+                                        <div class="my-2">
+                                            <img v-if="navlog.destDiagramLink" class="airport-diagram bg-white" :src="navlog.destDiagramLink">
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1016,7 +1161,16 @@
                                         </p>
 
                                     </template>
-                                    <button class="btn btn-danger btn-sm" @click="deleteLeg(leg.label)">Delete Leg</button>
+
+                                    <hr>
+
+                                    <div class="my-3">
+                                        <button class="btn btn-success me-1" @click="addLegBefore(index)">Add Leg Before</button>
+                                        <button class="btn btn-success mx-1" @click="addLegAfter(index)">Add Leg After</button>
+                                    </div>
+                                    <div class="my-3">
+                                        <button class="btn btn-danger btn-sm" @click="deleteLeg(leg.label)">Delete Leg</button>
+                                    </div>
                                 </div>
 
                                 <button class="btn btn-success mx-2" @click="addNewLeg">Add New Leg</button>
@@ -1091,6 +1245,7 @@
                                 <li><del class="text-faded">Pull airport weather data from external service, if user chooses</del></li>
                                 <li><del class="text-faded">Add CAS to IAS code using performance data (already included in YAML)</del>, and have it interpolate</li>
                                 <li><del class="text-faded">Add CAS to TAS code</del></li>
+                                <li>Allow reordering of legs</li>
                                 <li>Interpolate cruise performance data between temperature data points</li>
                                 <li>Interpolate climb performance data between pressure altitude data points</li>
                                 <li>Change UI so user simply inputs cruise altitude, and app automatically interpolates 2 closest winds aloft data, instead of manually choosing upper and lower bounds</li>
@@ -1106,7 +1261,7 @@
             </div>
 
             <div class="table-layout" v-if="layoutShown == 'table'">
-                <h2>
+                <h2 class="table-layout-title">
                     Table Layout
                     <button class="btn ms-3 me-2 btn-dark" @click.prevent="toggleLayout">Show Form Layout</button>
                     <button class="btn mx-2 btn-light" @click.prevent="toggleCompressLayout">Toggle Compressed Layout</button>
@@ -1133,19 +1288,24 @@
                                 <tbody>
                                     <tr>
                                         <td class="heading-cell">Aircraft Number:</td>
-                                        <td><input type="text" class="form-control" id="navlog.aircraftNumber" v-model="navlog.aircraftNumber"></td>
+                                        <td>
+                                            <input type="text" class="form-control d-print-none" id="navlog.aircraftNumber" v-model="navlog.aircraftNumber">
+                                            <span class="d-none d-print-inline" v-text="navlog.aircraftNumber"></span>
+                                        </td>
                                         <td colspan="6">
                                             <button class="btn btn-warning" @click.prevent="reverseOriginDestination">Reverse Origin/Destination</button>
                                         </td>
                                         <td rowspan="6">
                                             <p>Notes:</p>
-                                            <textarea class="form-control" rows="9" v-model="navlog.additionalNotes"></textarea>
+                                            <textarea class="form-control d-print-none" rows="10" v-model="navlog.additionalNotes"></textarea>
+                                            <pre class="font-sans d-none d-print-inline" v-text="navlog.additionalNotes"></pre>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="heading-cell">Origin:</td>
                                         <td>
-                                            <input type="text" class="form-control" id="navlog.originICAO" minlength="4" maxlength="4" v-model="navlog.originICAO">
+                                            <input type="text" class="form-control d-print-none" id="navlog.originICAO" minlength="4" maxlength="4" v-model="navlog.originICAO">
+                                            <span class="d-none d-print-inline" v-text="navlog.originICAO"></span>
                                         </td>
                                         <td class="heading-cell">Temp:</td>
                                         <td>{{ formatTemp(originTemp) }}&deg;C ({{ formatTemp(CtoF(originTemp)) }}&deg;F)</td>
@@ -1157,7 +1317,8 @@
                                     <tr>
                                         <td class="heading-cell">Destination:</td>
                                         <td>
-                                            <input type="text" class="form-control" id="navlog.destICAO" minlength="4" maxlength="4" v-model="navlog.destICAO">
+                                            <input type="text" class="form-control d-print-none" id="navlog.destICAO" minlength="4" maxlength="4" v-model="navlog.destICAO">
+                                            <span class="d-none d-print-inline" v-text="navlog.destICAO"></span>
                                         </td>
                                         <td class="heading-cell">Temp:</td>
                                         <td>{{ formatTemp(destTemp) }}&deg;C ({{ formatTemp(CtoF(destTemp)) }}&deg;F)</td>
@@ -1170,14 +1331,16 @@
                                         <td class="heading-cell">Cruise RPM:</td>
                                         <td>
                                             <div class="input-group">
-                                                <input type="number" class="form-control" id="navlog.cruiseRPM" v-model="navlog.cruiseRPM" step="50" min="1000">
+                                                <input type="number" class="form-control d-print-none" id="navlog.cruiseRPM" v-model="navlog.cruiseRPM" step="50" min="1000">
+                                                <span class="d-none d-print-inline me-1" v-text="navlog.cruiseRPM"></span>
                                                 <span class="input-group-text">rpm</span>
                                             </div>
                                         </td>
                                         <td class="heading-cell">Cruise Altitude:</td>
                                         <td>
                                             <div class="input-group">
-                                                <input type="number" class="form-control" id="navlog.cruiseAlt" v-model="navlog.cruiseAlt" step="1000" min="3500" max="17500">
+                                                <input type="number" class="form-control d-print-none" id="navlog.cruiseAlt" v-model="navlog.cruiseAlt" step="1000" min="3500" max="17500">
+                                                <span class="d-none d-print-inline me-1" v-text="navlog.cruiseAlt"></span>
                                                 <span class="input-group-text">ft MSL</span>
                                             </div>
                                             (Press. alt.: {{ cruisePressAlt.toFixed(0) }} ft MSL)
@@ -1185,7 +1348,8 @@
                                         <td class="heading-cell">Descent Rate:</td>
                                         <td>
                                             <div class="input-group">
-                                                <input type="number" class="form-control" id="navlog.descentRate" v-model="navlog.descentRate" step="100" min="100" max="1000">
+                                                <input type="number" class="form-control d-print-none" id="navlog.descentRate" v-model="navlog.descentRate" step="100" min="100" max="1000">
+                                                <span class="d-none d-print-inline me-1" v-text="navlog.descentRate"></span>
                                                 <span class="input-group-text">fpm</span>
                                             </div>
                                         </td>
@@ -1216,109 +1380,153 @@
                                                 <thead>
                                                     <tr>
                                                         <th id="leg-label-col">Check Points (Fixes)</th>
+                                                        <th id="leg-compass-heading-col">Comp. Heading</th>
+                                                        <th id="leg-ete-col">ETE</th>
+                                                        <th id="leg-ate-col">ATE</th>
+                                                        <th id="leg-ias-col">IAS</th>
                                                         <th id="leg-distance-col">Distance</th>
-                                                        <th id="leg-true-course-col">True Course</th>
                                                         <th id="leg-altitude-col">Altitude</th>
                                                         <th id="leg-wind-dir-col">Wind Dir.</th>
                                                         <th id="leg-wind-speed-col">Wind Speed</th>
                                                         <th id="leg-temp-col">Temp.</th>
                                                         <th id="leg-tas-col">TAS</th>
                                                         <th id="leg-cas-col">CAS</th>
-                                                        <th id="leg-ias-col">IAS</th>
+                                                        <th id="leg-true-course-col">True Course</th>
                                                         <th id="leg-wca-col">Wind Corr. Angle</th>
                                                         <th id="leg-true-heading-col">True Heading</th>
                                                         <th id="leg-mag-var-col">Mag. Var.</th>
                                                         <th id="leg-mag-heading-col">Mag. Heading</th>
                                                         <th id="leg-mag-dev-col">Mag. Dev.</th>
-                                                        <th id="leg-compass-heading-col">Comp. Heading</th>
                                                         <th id="leg-groundspeed-col">Ground Speed</th>
-                                                        <th id="leg-ete-col">ETE</th>
-                                                        <th id="leg-ate-col">ATE</th>
                                                         <th id="leg-fuel-burn-col">Fuel Burn</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr v-for="(leg, index) in navlog.legs">
+
+                                                        <!-- Check Points (Fixes) -->
                                                         <td>
-                                                            <input class="form-control leg-name-input" type="text" v-model="leg.label" ref="legNameInput">
+                                                            <input class="form-control leg-name-input d-print-none" type="text" v-model="leg.label" ref="legNameInput">
+                                                            <span class="d-none d-print-inline" v-text="leg.label"></span>
                                                         </td>
+
+                                                        <!-- Comp. Heading -->
+                                                        <td></td>
+
+                                                        <!-- ETE -->
+                                                        <td>
+                                                            {{ leg.label == navlog.originICAO ? "-" :
+                                                                formatTimeMinutes(calculateLegTimeMinutes(getLegDistance(leg), getLegGroundSpeed(leg))) }} mins
+                                                        </td>
+
+                                                        <!-- ATE -->
+                                                        <td></td>
+
+                                                        <!-- IAS -->
+                                                        <td>
+                                                            {{ leg.label == navlog.originICAO ? "-" :
+                                                                formatAirspeed( leg.label == "TOC" ? climbKIAS : cruiseKIAS) }} kts
+                                                        </td>
+
+                                                        <!-- Distance -->
                                                         <td>
                                                             <div class="input-group">
                                                                 <input v-if="isCalculatedLeg(leg)"
-                                                                    class="form-control text-primary border-primary"
+                                                                    class="form-control text-primary border-primary d-print-none"
                                                                     :id="'leg-' + index + '.distance'"
                                                                     :value="formatDistance(getLegDistance(leg))"
                                                                     :class="{ 'is-invalid': getLegDistance(leg) < 0 }"
                                                                     readonly
                                                                 >
                                                                 <input v-else type="number"
-                                                                    class="form-control"
+                                                                    class="form-control d-print-none"
                                                                     :id="'leg-' + index + '.distance'"
                                                                     v-model="leg.distance"
                                                                     :class="{ 'is-invalid': leg.distance < 0 }"
                                                                     step="0.5"
                                                                     min="0"
                                                                 >
+                                                                <span class="d-none d-print-inline me-1" v-text="formatDistance(getLegDistance(leg))"></span>
                                                                 <span class="input-group-text">nm</span>
                                                             </div>
                                                         </td>
-                                                        <td>
-                                                            {{ formatDirection(tripTrueCourse) }}&deg;
-                                                        </td>
+
+                                                        <!-- Altitude -->
                                                         <td>
                                                             <div class="input-group">
-                                                                <input type="number" class="form-control" id="navlog.cruiseAlt" v-model="navlog.cruiseAlt" step="1000" min="3500" max="17500">
+                                                                <input type="number" class="form-control d-print-none" id="navlog.cruiseAlt" v-model="navlog.cruiseAlt" step="1000" min="3500" max="17500">
+                                                                <span class="d-none d-print-inline me-1" v-text="navlog.cruiseAlt"></span>
                                                                 <span class="input-group-text">ft</span>
                                                             </div>
                                                         </td>
+
+                                                        <!-- Wind Dir. -->
                                                         <td>
                                                             {{ formatDirection( leg.label == this.navlog.originICAO || leg.label == "TOC" ? originWindDir : cruiseWindDir) }}&deg;
                                                         </td>
+
+                                                        <!-- Wind Speed -->
                                                         <td>
                                                             {{ formatAirspeed( leg.label == this.navlog.originICAO || leg.label == "TOC" ? originWindSpeed : cruiseWindSpeed) }} kts
                                                         </td>
+
+                                                        <!-- Temp. -->
                                                         <td>
                                                             {{ formatTemp( leg.label == this.navlog.originICAO || leg.label == "TOC" ? originTemp : cruiseTemp) }}&deg;C
                                                         </td>
+
+                                                        <!-- TAS -->
                                                         <td>
                                                             {{ leg.label == navlog.originICAO ? "-" :
                                                                 formatAirspeed( leg.label == "TOC" ? climbKTAS : cruiseKTAS) }} kts
                                                         </td>
+
+                                                        <!-- CAS -->
                                                         <td>
                                                             {{ leg.label == navlog.originICAO ? "-" :
                                                                 formatAirspeed( leg.label == "TOC" ? climbKCAS : cruiseKCAS) }} kts
                                                         </td>
+
+                                                        <!-- True Course -->
                                                         <td>
-                                                            {{ leg.label == navlog.originICAO ? "-" :
-                                                                formatAirspeed( leg.label == "TOC" ? climbKIAS : cruiseKIAS) }} kts
+                                                            {{ formatDirection(tripTrueCourse) }}&deg;
                                                         </td>
+
+                                                        <!-- Wind Corr. Angle -->
                                                         <td>
                                                             {{ leg.label == navlog.originICAO ? "-" :
                                                                 formatDirection( leg.label == "TOC" ? climbWindCorrectionAngle : cruiseWindCorrectionAngle) }}&deg;
                                                         </td>
+
+                                                        <!-- True Heading -->
                                                         <td>
                                                             {{ formatDirection( leg.label == this.navlog.originICAO || leg.label == "TOC" ? climbTrueHeading : cruiseTrueHeading) }}&deg;
                                                         </td>
+
+                                                        <!-- Mag. Var. -->
                                                         <td>
                                                             <div class="input-group">
-                                                                <input type="number" class="form-control" id="navlog.originMagVar" v-model="navlog.originMagVar" step="1">
+                                                                <input type="number" class="form-control d-print-none" id="navlog.originMagVar" v-model="navlog.originMagVar" step="1">
+                                                                <span class="d-none d-print-inline" v-text="navlog.originMagVar"></span>
                                                                 <span class="input-group-text">&deg;</span>
                                                             </div>
                                                         </td>
+
+                                                        <!-- Mag. Heading -->
                                                         <td>
                                                             {{ formatDirection( leg.label == this.navlog.originICAO || leg.label == "TOC" ? climbMagneticHeading : cruiseMagneticHeading) }}&deg;
                                                         </td>
+
+                                                        <!-- Mag. Dev. -->
                                                         <td></td>
-                                                        <td></td>
+
+                                                        <!-- Ground Speed -->
                                                         <td>
                                                             {{ leg.label == navlog.originICAO ? "-" :
                                                                 formatAirspeed( leg.label == "TOC" ? climbGroundSpeed : cruiseGroundSpeed) }} kts
                                                         </td>
-                                                        <td>
-                                                            {{ leg.label == navlog.originICAO ? "-" :
-                                                                formatTimeMinutes(calculateLegTimeMinutes(getLegDistance(leg), getLegGroundSpeed(leg))) }} mins
-                                                        </td>
-                                                        <td></td>
+
+                                                        <!-- Fuel Burn -->
                                                         <td>
                                                             {{ leg.label == navlog.originICAO ? formatFuelBurn(taxiTakeoffFuelUsed) :
                                                                 formatFuelBurn(calculateLegTimeHours(getLegDistance(leg), getLegGroundSpeed(leg)) * cruisePerformanceData.gph) }} gal
@@ -1328,10 +1536,11 @@
                                                 </tbody>
                                                 <tfoot>
                                                     <tr>
-                                                        <td colspan="16"></td>
-                                                        <td>{{ formatDistance(totalLegsDistance) }} nm</td>
-                                                        <td></td>
+                                                        <td colspan="2"></td>
                                                         <td>{{ formatTimeMinutes(totalLegsTime) }} mins</td>
+                                                        <td colspan="2"></td>
+                                                        <td>{{ formatDistance(totalLegsDistance) }} nm</td>
+                                                        <td colspan="13"></td>
                                                         <td>{{ formatFuelBurn(totalLegsFuelBurn) }} gal</td>
                                                     </tr>
                                                 </tfoot>
@@ -1347,7 +1556,12 @@
                             </table>
                         </div>
 
-                        <div class="col-3">
+                        <div id="navlog-additional" class="col-3">
+
+                            <div v-if="navlog.originDiagramLink" class="airport-diagram-container">
+                                <img class="bg-white d-block w-100" :src="navlog.originDiagramLink">
+                            </div>
+
                             <table class="table table-bordered bg-white" id="airport-frequencies">
                                 <thead>
                                     <tr>
@@ -1492,10 +1706,15 @@
                                     </tr>
                                 </tbody>
                             </table>
+
+                            <div v-if="navlog.destDiagramLink" class="airport-diagram-container">
+                                <img class="bg-white d-block w-100" :src="navlog.destDiagramLink">
+                            </div>
+
                         </div>
                     </div>
 
-                    <hr>
+                    <hr class="d-print-none">
 
                     <div class="navlog-actions">
 

@@ -25,6 +25,7 @@ let defaultNavlogData = {
     originCustomWindSpeed: 0,
     originCustomElev: 0,
     originMagVar: 0,
+    originDiagramLink: '',
 
     originATISFreq: '',
     originGroundFreq: '',
@@ -75,6 +76,7 @@ let defaultNavlogData = {
     destWindSpeed: 0,
     destElev: 0,
     destMagVar: 0,
+    destDiagramLink: '',
 
     destATISFreq: '',
     destDepartureFreq: '',
@@ -782,8 +784,8 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
             let layoutShown = url.searchParams.get('layout') ?? 'form';
             this.layoutShown = layoutShown;
 
-            let layoutCompressed = url.searchParams.get('compressed') ?? 'false';
-            this.layoutCompressed = layoutCompressed == Boolean(parseInt(layoutCompressed));
+            let layoutCompressed = url.searchParams.get('compressed') ?? '0';
+            this.layoutCompressed = Boolean(parseInt(layoutCompressed));
 
             this.updateLayoutCompressed();
         },
@@ -1410,6 +1412,22 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 this.$nextTick(() => this.$refs.legNameInput[ this.$refs.legNameInput.length - 1 ].focus());
             },
 
+            addLegAfter(index) {
+                let newLeg = JSON.parse(JSON.stringify(defaultLeg));
+                newLeg.label = "New Leg " + (index + 2);
+                this.navlog.legs.splice(index + 1, 0, newLeg);
+
+                this.$nextTick(() => this.$refs.legNameInput[ index + 1 ].focus());
+            },
+
+            addLegBefore(index) {
+                let newLeg = JSON.parse(JSON.stringify(defaultLeg));
+                newLeg.label = "New Leg " + (index + 1);
+                this.navlog.legs.splice(index, 0, newLeg);
+
+                this.$nextTick(() => this.$refs.legNameInput[ index ].focus());
+            },
+
             deleteLeg(label) {
                 let index = null;
                 for (const [i, leg] of this.navlog.legs.entries()) {
@@ -1432,8 +1450,8 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 this.navlog.legs = this.navlog.legs.reverse();
                 for (let leg of this.navlog.legs) {
                     if (leg.label == "TOC") {
-                        leg.label = "TOD";
-                    } else if (leg.label == "TOD") {
+                        leg.label = "BOD";
+                    } else if (leg.label == "BOD") {
                         leg.label = "TOC";
                     }
                 }
@@ -1443,7 +1461,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 switch (leg.label) {
                     case this.navlog.originICAO:
                     case "TOC":
-                    case "TOD":
+                    case "BOD":
                     case this.navlog.destICAO:
                         return true;
                     default:
@@ -1457,7 +1475,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                         return 0;
                     case "TOC":
                         return this.climbDistance;
-                    case "TOD":
+                    case "BOD":
                         return this.descentDistance;
                     case this.navlog.destICAO:
                         return this.finalLegDistance;
@@ -1491,6 +1509,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 const prevCTAFFreq = this.navlog.originCTAFFreq;
                 const prevFSSFreq = this.navlog.originFSSFreq;
                 const prevUNICOMFreq = this.navlog.originUNICOMFreq;
+                const prevDiagramLink = this.navlog.originDiagramLink;
 
                 this.navlog.originICAO = this.navlog.destICAO;
                 this.navlog.originMagVar = this.navlog.destMagVar;
@@ -1507,6 +1526,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 this.navlog.originCTAFFreq = this.navlog.destCTAFFreq;
                 this.navlog.originFSSFreq = this.navlog.destFSSFreq;
                 this.navlog.originUNICOMFreq = this.navlog.destUNICOMFreq;
+                this.navlog.originDiagramLink = this.navlog.destDiagramLink;
 
                 this.navlog.destICAO = prevOriginICAO;
                 this.navlog.destMagVar = prevOriginMagVar;
@@ -1523,6 +1543,7 @@ export let navlogApp = function(airplaneData, windsAloft, airportLatLong) {
                 this.navlog.destCTAFFreq = prevCTAFFreq;
                 this.navlog.destFSSFreq = prevFSSFreq;
                 this.navlog.destUNICOMFreq = prevUNICOMFreq;
+                this.navlog.destDiagramLink = prevDiagramLink;
 
                 this.reverseLegs();
 
